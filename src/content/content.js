@@ -126,7 +126,7 @@ async function init() {
 
 function getVisibleTextNodes(root) {
   const excludedTags = new Set([
-    'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TD', 'TH', 'CAPTION', 'COLGROUP', 'COL',
+    'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'CAPTION', 'COLGROUP', 'COL',
     'CODE', 'PRE', 'SAMP', 'KBD', 'VAR',
     'INPUT', 'TEXTAREA', 'SELECT', 'OPTION', 'BUTTON',
     'SVG', 'MATH', 'CANVAS',
@@ -190,27 +190,42 @@ function getVisibleTextNodes(root) {
   return nodes;
 }
 
-function getPageSegments() {
-  const textNodes = getVisibleTextNodes(document.body);
-  const segments = [];
+function getBlockAncestor(node) {
+  const blocks = new Set([
+    'P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+    'LI', 'TD', 'TH', 'BLOCKQUOTE', 'SECTION', 'ARTICLE',
+    'HEADER', 'FOOTER', 'MAIN', 'ASIDE', 'NAV',
+    'OL', 'UL', 'DL', 'FIGCAPTION', 'PRE', 'FORM',
+    'FIELDSET', 'DETAILS', 'DIALOG', 'BUTTON',
+  ]);
+  let el = node.parentElement;
+  while (el && el !== document.body) {
+    if (blocks.has(el.tagName)) return el;
+    el = el.parentElement;
+  }
+  return document.body;
+}
 
+function textNodesToSegments(textNodes) {
+  const segments = [];
   let i = 0;
   while (i < textNodes.length) {
     const nodes = [textNodes[i]];
-    const parent = textNodes[i].parentNode;
-
+    const block = getBlockAncestor(textNodes[i]);
     let j = i + 1;
-    while (j < textNodes.length && textNodes[j].parentNode === parent) {
+    while (j < textNodes.length && getBlockAncestor(textNodes[j]) === block) {
       nodes.push(textNodes[j]);
       j++;
     }
-
     const text = nodes.map((n) => n.textContent.trim()).filter(Boolean).join(' ');
     if (text) segments.push({ nodes, text });
     i = j;
   }
-
   return segments;
+}
+
+function getPageSegments() {
+  return textNodesToSegments(getVisibleTextNodes(document.body));
 }
 
 function applyTranslationToSegment(segment, translatedText) {
@@ -357,20 +372,7 @@ async function translateSelectedElement(element) {
   if (isLiveElement) preserveOriginalContent();
 
   const textNodes = getVisibleTextNodes(element);
-  const segments = [];
-  let i = 0;
-  while (i < textNodes.length) {
-    const nodes = [textNodes[i]];
-    const parent = textNodes[i].parentNode;
-    let j = i + 1;
-    while (j < textNodes.length && textNodes[j].parentNode === parent) {
-      nodes.push(textNodes[j]);
-      j++;
-    }
-    const text = nodes.map((n) => n.textContent.trim()).filter(Boolean).join(' ');
-    if (text) segments.push({ nodes, text });
-    i = j;
-  }
+  const segments = textNodesToSegments(textNodes);
 
   const total = segments.length;
   if (total === 0) {
