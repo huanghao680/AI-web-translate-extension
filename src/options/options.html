@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 网页翻译 - 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>设置</h1>
+
+    <section class="section">
+      <h2>API 配置</h2>
+      <div class="form-group">
+        <label for="baseUrl">API Base URL</label>
+        <input type="url" id="baseUrl" placeholder="https://api.deepseek.com" />
+        <span class="hint">支持 OpenAI 兼容 API 格式的服务地址</span>
+      </div>
+      <div class="form-group">
+        <label for="apiKey">API Key</label>
+        <input type="password" id="apiKey" placeholder="sk-" />
+        <span class="hint">用于调用大语言模型 API 的密钥</span>
+      </div>
+      <div class="form-group">
+        <label for="model">模型名称</label>
+        <input type="text" id="model" placeholder="deepseek-v4-flash" />
+        <span class="hint">使用的 AI 模型名称，如 deepseek-v4-flash、deepseek-v4-pro 等</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>翻译设置</h2>
+      <div class="form-group">
+        <label for="sourceLang">源语言</label>
+        <select id="sourceLang">
+          <option value="auto">自动检测</option>
+          <option value="中文">中文</option>
+          <option value="英文">英文</option>
+          <option value="日文">日文</option>
+          <option value="韩文">韩文</option>
+          <option value="法文">法文</option>
+          <option value="德文">德文</option>
+          <option value="西班牙文">西班牙文</option>
+          <option value="俄文">俄文</option>
+          <option value="阿拉伯文">阿拉伯文</option>
+          <option value="葡萄牙文">葡萄牙文</option>
+          <option value="意大利文">意大利文</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="targetLang">目标语言</label>
+        <select id="targetLang">
+          <option value="中文">中文</option>
+          <option value="英文">英文</option>
+          <option value="日文">日文</option>
+          <option value="韩文">韩文</option>
+          <option value="法文">法文</option>
+          <option value="德文">德文</option>
+          <option value="西班牙文">西班牙文</option>
+          <option value="俄文">俄文</option>
+          <option value="阿拉伯文">阿拉伯文</option>
+          <option value="葡萄牙文">葡萄牙文</option>
+          <option value="意大利文">意大利文</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>翻译风格</h2>
+      <div class="form-group">
+        <label for="translationStyle">风格</label>
+        <select id="translationStyle">
+          <option value="default">默认（通顺自然）</option>
+          <option value="formal">正式（书面语）</option>
+          <option value="concise">简洁（精炼简略）</option>
+          <option value="academic">学术（专业术语精确）</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>其他设置</h2>
+      <div class="form-group toggle-group">
+        <label class="toggle-label">
+          <span>划词翻译</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="enableSelectionTranslation" />
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
+        <span class="hint">选中文本时自动弹出翻译浮窗</span>
+      </div>
+      <div class="form-group toggle-group">
+        <label class="toggle-label">
+          <span>思考模式</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="enableThinking" />
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
+        <span class="hint">启用后模型会先输出思维链再回答，提高准确性但降低速度（翻译任务建议关闭）</span>
+      </div>
+      <div class="form-group toggle-group">
+        <label class="toggle-label">
+          <span>自动翻译</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoTranslate" />
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
+        <span class="hint">页面加载时自动进行翻译</span>
+      </div>
+      <div class="form-group toggle-group">
+        <label class="toggle-label">
+          <span style="padding-left:20px;">无需确认直接翻译</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoTranslateWithoutConfirm" />
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
+        <span class="hint" style="padding-left:20px;">开启后页面加载直接翻译，不弹出确认提示</span>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="saveBtn" class="btn btn-primary">保存设置</button>
+      <button id="testBtn" class="btn btn-secondary">测试连接</button>
+      <span id="saveStatus" class="save-status"></span>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
