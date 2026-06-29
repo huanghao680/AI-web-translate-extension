@@ -375,8 +375,11 @@ function showSummaryPanel(content) {
 }
 
 async function handleSummaryTranslation() {
+  if (isTranslating) { showNotification('正在翻译中，请稍候...', 'info'); return; }
+  isTranslating = true;
+
   const settings = await getSettings();
-  if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); return; }
+  if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); isTranslating = false; return; }
 
   progressBar.show('正在总结并翻译...');
   try {
@@ -396,6 +399,8 @@ async function handleSummaryTranslation() {
     showSummaryPanel(result);
   } catch (error) {
     progressBar.error(`总结翻译失败: ${error.message}`);
+  } finally {
+    isTranslating = false;
   }
 }
 
