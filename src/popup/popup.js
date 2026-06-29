@@ -107,6 +107,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('openOptions').addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
+
+  const logs = await ErrorLog.getAll();
+  if (logs.length > 0) {
+    const section = document.getElementById('errorLogSection');
+    const count = document.getElementById('errorCount');
+    const body = document.getElementById('errorLogBody');
+    section.style.display = 'block';
+    count.textContent = logs.length;
+
+    body.innerHTML = logs.slice(0, 10).map((l) => `
+      <div class="error-log-entry">
+        <div class="error-log-entry-time">${new Date(l.timestamp).toLocaleString()}</div>
+        <div class="error-log-entry-msg">${escHtml(l.message || '')}</div>
+        ${l.status ? `<div class="error-log-entry-detail">HTTP ${l.status} ${l.statusText || ''}</div>` : ''}
+        ${l.responseBody ? `<div class="error-log-entry-detail">响应: ${escHtml(l.responseBody.slice(0, 300))}</div>` : ''}
+        ${l.requestBody ? `<div class="error-log-entry-detail">请求: ${escHtml(l.requestBody.slice(0, 300))}</div>` : ''}
+      </div>
+    `).join('') + '<button class="error-log-clear" id="clearErrorLog">清除所有日志</button>';
+
+    document.getElementById('clearErrorLog').addEventListener('click', async () => {
+      await ErrorLog.clear();
+      section.style.display = 'none';
+    });
+
+    document.getElementById('errorLogToggle').addEventListener('click', () => {
+      const arrow = document.querySelector('.error-log-arrow');
+      const b = document.getElementById('errorLogBody');
+      const isOpen = b.style.display === 'block';
+      b.style.display = isOpen ? 'none' : 'block';
+      if (arrow) arrow.classList.toggle('error-log-arrow--open', !isOpen);
+    });
+  }
 });
 
 function updateAllButtons(state) {

@@ -20,6 +20,7 @@
       "matches": ["<all_urls>"],
       "js": [
         "src/lib/storage.js",
+        "src/lib/error-log.js",
         "src/lib/api-client.js",
         "src/lib/translator.js",
         "src/content/selection-tooltip.js",

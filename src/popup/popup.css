@@ -256,3 +256,94 @@ body {
 .toggle-switch input:checked + .toggle-slider::before {
   transform: translateX(16px);
 }
+
+.error-log-section {
+  background: #fff3e0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.error-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #e65100;
+  cursor: pointer;
+  user-select: none;
+}
+
+.error-log-header:hover {
+  background: #ffe0b2;
+}
+
+.error-log-arrow {
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.error-log-arrow--open {
+  transform: rotate(90deg);
+}
+
+.error-log-body {
+  padding: 0 12px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.error-log-entry {
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid #ffe0b2;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #555;
+  word-break: break-all;
+}
+
+.error-log-entry:last-child {
+  margin-bottom: 0;
+}
+
+.error-log-entry-time {
+  color: #999;
+  font-size: 10px;
+}
+
+.error-log-entry-msg {
+  color: #d32f2f;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.error-log-entry-detail {
+  margin-top: 4px;
+  padding: 4px 6px;
+  background: #fafafa;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 10px;
+  color: #777;
+  white-space: pre-wrap;
+}
+
+.error-log-clear {
+  display: block;
+  width: 100%;
+  padding: 4px;
+  background: none;
+  border: 1px solid #ffcc80;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #e65100;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.error-log-clear:hover {
+  background: #fff3e0;
+}
