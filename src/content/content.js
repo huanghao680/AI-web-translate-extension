@@ -799,12 +799,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   sendResponse({ success: true });
 });
 
+function waitForPageReady(callback) {
+  if (document.readyState === 'complete') {
+    callback();
+    return;
+  }
+  window.addEventListener('load', callback, { once: true });
+  setTimeout(callback, 8000);
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     init();
-    checkAutoTranslate();
   });
 } else {
   init();
-  checkAutoTranslate();
 }
+
+waitForPageReady(() => {
+  checkAutoTranslate();
+});
