@@ -70,5 +70,12 @@
   "optionsTest": { "message": "Test Connection" },
   "optionsExport": { "message": "Export Config" },
   "optionsImport": { "message": "Import Config" },
-  "optionsSaved": { "message": "Settings saved" }
+  "optionsSaved": { "message": "Settings saved" },
+  "langZh": { "message": "Chinese" },
+  "langEn": { "message": "English" },
+  "langJa": { "message": "Japanese" },
+  "langKo": { "message": "Korean" },
+  "setTranslation": { "message": "Translation Settings" },
+  "setStyle": { "message": "Translation Style" },
+  "setOther": { "message": "Other Settings" }
 }

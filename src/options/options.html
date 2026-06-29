@@ -8,35 +8,35 @@
 </head>
 <body>
   <div class="container">
-    <h1>设置</h1>
+    <h1 data-i18n="pageOptions">设置</h1>
 
     <section class="section">
-      <h2>配置管理</h2>
+      <h2 data-i18n="optionsProfileManagement">配置管理</h2>
       <div class="profile-list" id="profileList"></div>
       <div class="profile-actions">
-        <button id="addProfileBtn" class="btn btn-secondary btn-sm">＋ 新建配置</button>
+        <button id="addProfileBtn" class="btn btn-secondary btn-sm" data-i18n="optionsNewProfile">＋ 新建配置</button>
       </div>
     </section>
 
     <section class="section" id="profileEditor" style="display:none;">
-      <h2 id="editorTitle">编辑配置</h2>
+      <h2 id="editorTitle" data-i18n="optionsEditProfile">编辑配置</h2>
       <input type="hidden" id="profileId" />
       <div class="form-group">
-        <label for="profileName">配置名称</label>
+        <label for="profileName" data-i18n="optionsProfileName">配置名称</label>
         <input type="text" id="profileName" placeholder="DeepSeek" />
       </div>
       <div class="form-group">
-        <label for="profileBaseUrl">API Base URL</label>
+        <label for="profileBaseUrl" data-i18n="optionsBaseUrl">API Base URL</label>
         <input type="url" id="profileBaseUrl" placeholder="https://api.deepseek.com" />
-        <span class="hint">支持 OpenAI 兼容 API 格式的服务地址</span>
+        <span class="hint" data-i18n="optionsBaseUrl">支持 OpenAI 兼容 API 格式的服务地址</span>
       </div>
       <div class="form-group">
-        <label for="profileApiKey">API Key</label>
+        <label for="profileApiKey" data-i18n="optionsApiKey">API Key</label>
         <input type="password" id="profileApiKey" placeholder="sk-" />
         <span class="hint">用于调用大语言模型 API 的密钥</span>
       </div>
       <div class="form-group" style="position:relative;">
-        <label for="profileModel">模型名称</label>
+        <label for="profileModel" data-i18n="optionsModel">模型名称</label>
         <div class="model-select-row">
           <select id="profileModel">
             <option value="">手动输入...</option>
@@ -47,27 +47,27 @@
         <span class="hint">选择或手动输入模型名称</span>
       </div>
       <div class="form-group">
-        <label for="profileMaxTokens">最大输出 Tokens</label>
+        <label for="profileMaxTokens" data-i18n="optionsMaxTokens">最大输出 Tokens</label>
         <input type="number" id="profileMaxTokens" placeholder="32768" min="1024" max="384000" />
         <span class="hint">DeepSeek 最多 384000，MiMo 最多 131072。建议保持默认 32768</span>
       </div>
       <div class="profile-editor-actions">
-        <button id="saveProfileBtn" class="btn btn-primary">保存配置</button>
-        <button id="cancelProfileBtn" class="btn btn-outline">取消</button>
-        <button id="deleteProfileBtn" class="btn btn-danger" style="margin-left:auto;">删除</button>
+        <button id="saveProfileBtn" class="btn btn-primary" data-i18n="optionsSaveProfile">保存配置</button>
+        <button id="cancelProfileBtn" class="btn btn-outline" data-i18n="btnCancel">取消</button>
+        <button id="deleteProfileBtn" class="btn btn-danger" style="margin-left:auto;" data-i18n="optionsDeleteProfile">删除</button>
       </div>
     </section>
 
     <section class="section">
-      <h2>翻译设置</h2>
+      <h2 data-i18n="setTranslation">翻译设置</h2>
       <div class="form-group">
-        <label for="sourceLang">源语言</label>
+        <label for="sourceLang" data-i18n="optionsSourceLang">源语言</label>
         <select id="sourceLang">
           <option value="auto">自动检测</option>
-          <option value="中文">中文</option>
-          <option value="英文">英文</option>
-          <option value="日文">日文</option>
-          <option value="韩文">韩文</option>
+          <option value="中文" data-i18n="langZh">中文</option>
+          <option value="英文" data-i18n="langEn">英文</option>
+          <option value="日文" data-i18n="langJa">日文</option>
+          <option value="韩文" data-i18n="langKo">韩文</option>
           <option value="法文">法文</option>
           <option value="德文">德文</option>
           <option value="西班牙文">西班牙文</option>
@@ -78,12 +78,12 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="targetLang">目标语言</label>
+        <label for="targetLang" data-i18n="optionsTargetLang">目标语言</label>
         <select id="targetLang">
-          <option value="中文">中文</option>
-          <option value="英文">英文</option>
-          <option value="日文">日文</option>
-          <option value="韩文">韩文</option>
+          <option value="中文" data-i18n="langZh">中文</option>
+          <option value="英文" data-i18n="langEn">英文</option>
+          <option value="日文" data-i18n="langJa">日文</option>
+          <option value="韩文" data-i18n="langKo">韩文</option>
           <option value="法文">法文</option>
           <option value="德文">德文</option>
           <option value="西班牙文">西班牙文</option>
@@ -96,64 +96,52 @@
     </section>
 
     <section class="section">
-      <h2>翻译风格</h2>
+      <h2 data-i18n="setStyle">翻译风格</h2>
       <div class="form-group">
-        <label for="translationStyle">风格</label>
+        <label for="translationStyle" data-i18n="optionsStyle">风格</label>
         <select id="translationStyle">
-          <option value="default">默认（通顺自然）</option>
-          <option value="formal">正式（书面语）</option>
-          <option value="concise">简洁（精炼简略）</option>
-          <option value="academic">学术（专业术语精确）</option>
+          <option value="default" data-i18n="styleDefault">默认（通顺自然）</option>
+          <option value="formal" data-i18n="styleFormal">正式（书面语）</option>
+          <option value="concise" data-i18n="styleConcise">简洁（精炼简略）</option>
+          <option value="academic" data-i18n="styleAcademic">学术（专业术语精确）</option>
         </select>
       </div>
     </section>
 
     <section class="section">
-      <h2>其他设置</h2>
+      <h2 data-i18n="setOther">其他设置</h2>
       <div class="form-group toggle-group">
         <label class="toggle-label">
-          <span>划词翻译</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="enableSelectionTranslation" />
-            <span class="toggle-slider"></span>
-          </label>
+          <span data-i18n="optionsSelectionTranslation">划词翻译</span>
+          <label class="toggle-switch"><input type="checkbox" id="enableSelectionTranslation" /><span class="toggle-slider"></span></label>
         </label>
         <span class="hint">选中文本时自动弹出翻译浮窗</span>
       </div>
       <div class="form-group toggle-group">
         <label class="toggle-label">
-          <span>思考模式</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="enableThinking" />
-            <span class="toggle-slider"></span>
-          </label>
+          <span data-i18n="optionsThinkingMode">思考模式</span>
+          <label class="toggle-switch"><input type="checkbox" id="enableThinking" /><span class="toggle-slider"></span></label>
         </label>
         <span class="hint">启用后模型会先输出思维链再回答，提高准确性但降低速度（翻译任务建议关闭）</span>
       </div>
       <div class="form-group toggle-group">
         <label class="toggle-label">
-          <span>翻译提示</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="autoTranslate" />
-            <span class="toggle-slider"></span>
-          </label>
+          <span data-i18n="labelTranslatePrompt">翻译提示</span>
+          <label class="toggle-switch"><input type="checkbox" id="autoTranslate" /><span class="toggle-slider"></span></label>
         </label>
-        <span class="hint">页面加载时弹出翻译提示条</span>
+        <span class="hint" data-i18n="labelTranslatePrompt">页面加载时弹出翻译提示条</span>
       </div>
       <div class="form-group">
         <label for="autoTranslateAction" style="padding-left:20px;font-size:13px;color:#888;font-weight:400;">提示条点击翻译后执行</label>
         <select id="autoTranslateAction" style="margin-left:20px;width:calc(100% - 20px);">
-          <option value="full">整页翻译</option>
-          <option value="summary">总结性翻译</option>
+          <option value="full" data-i18n="btnFullPage">整页翻译</option>
+          <option value="summary" data-i18n="btnSummary">总结性翻译</option>
         </select>
       </div>
       <div class="form-group toggle-group">
         <label class="toggle-label">
-          <span>内容精简（Beta）</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="enableContentOptimization" />
-            <span class="toggle-slider"></span>
-          </label>
+          <span data-i18n="optionsContentOptimization">内容精简（Beta）</span>
+          <label class="toggle-switch"><input type="checkbox" id="enableContentOptimization" /><span class="toggle-slider"></span></label>
         </label>
         <span class="hint">仅提取正文区域发送给 AI，减少 Token 消耗（适用于文章类页面）</span>
       </div>
@@ -161,17 +149,17 @@
         <label for="language" style="font-size:13px;color:#888;font-weight:400;">插件语言</label>
         <select id="language">
           <option value="auto">跟随浏览器设置</option>
-          <option value="zh_CN">中文</option>
-          <option value="en">English</option>
+          <option value="zh_CN" data-i18n="langZh">中文</option>
+          <option value="en" data-i18n="langEn">English</option>
         </select>
       </div>
     </section>
 
     <div class="actions">
-      <button id="saveBtn" class="btn btn-primary">保存设置</button>
-      <button id="testBtn" class="btn btn-secondary">测试连接</button>
-      <button id="exportBtn" class="btn btn-outline">导出配置</button>
-      <button id="importBtn" class="btn btn-outline">导入配置</button>
+      <button id="saveBtn" class="btn btn-primary" data-i18n="optionsSave">保存设置</button>
+      <button id="testBtn" class="btn btn-secondary" data-i18n="optionsTest">测试连接</button>
+      <button id="exportBtn" class="btn btn-outline" data-i18n="optionsExport">导出配置</button>
+      <button id="importBtn" class="btn btn-outline" data-i18n="optionsImport">导入配置</button>
       <span id="saveStatus" class="save-status"></span>
     </div>
     <input type="file" id="importFileInput" accept=".json" style="display:none;" />

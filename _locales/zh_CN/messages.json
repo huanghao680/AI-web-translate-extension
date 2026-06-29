@@ -70,5 +70,12 @@
   "optionsTest": { "message": "测试连接" },
   "optionsExport": { "message": "导出配置" },
   "optionsImport": { "message": "导入配置" },
-  "optionsSaved": { "message": "设置已保存" }
+  "optionsSaved": { "message": "设置已保存" },
+  "langZh": { "message": "中文" },
+  "langEn": { "message": "英文" },
+  "langJa": { "message": "日文" },
+  "langKo": { "message": "韩文" },
+  "setTranslation": { "message": "翻译设置" },
+  "setStyle": { "message": "翻译风格" },
+  "setOther": { "message": "其他设置" }
 }
