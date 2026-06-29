@@ -4,9 +4,38 @@ class ApiClient {
     this.apiKey = apiKey;
   }
 
+  async _fetch(url, options) {
+    try {
+      const resp = await fetch(url, options);
+      return resp;
+    } catch {
+      const result = await chrome.runtime.sendMessage({
+        type: 'API_FETCH',
+        url,
+        method: options.method || 'GET',
+        headers: options.headers || {},
+        body: options.body || null,
+      });
+      if (!result || !result.ok) {
+        const err = new Error();
+        err.status = result?.status || 0;
+        err.statusText = result?.statusText || '';
+        err.responseBody = result?.body || result?.error || '';
+        throw err;
+      }
+      return {
+        ok: true,
+        status: result.status,
+        statusText: result.statusText,
+        async text() { return result.body; },
+        async json() { return JSON.parse(result.body); },
+      };
+    }
+  }
+
   async listModels() {
     const url = `${this.baseUrl.replace(/\/+$/, '')}/models`;
-    const response = await fetch(url, {
+    const response = await this._fetch(url, {
       headers: { 'Authorization': `Bearer ${this.apiKey}` },
     });
     if (!response.ok) {
@@ -21,7 +50,7 @@ class ApiClient {
   async _request(url, body) {
     let response;
     try {
-      response = await fetch(url, {
+      response = await this._fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` },
         body: JSON.stringify(body),
@@ -32,7 +61,7 @@ class ApiClient {
     }
 
     if (!response.ok) {
-      const errorBody = await response.text();
+      const errorBody = response.responseBody || await response.text();
       ErrorLog.add({
         type: 'api_error', baseUrl: this.baseUrl, url, model: body.model,
         status: response.status, statusText: response.statusText, responseBody: errorBody,
