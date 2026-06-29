@@ -54,6 +54,7 @@ class ApiClient {
       temperature,
       max_tokens: maxTokens,
       thinkingEnabled: !thinkingDisabled,
+    };
     if (body.thinkingEnabled) {
       body.thinking = { type: 'enabled' };
     }
@@ -80,6 +81,7 @@ class ApiClient {
       temperature,
       max_tokens: maxTokens,
       thinkingEnabled: !thinkingDisabled,
+    };
     if (body.thinkingEnabled) {
       body.thinking = { type: 'enabled' };
     }
