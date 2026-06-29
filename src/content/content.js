@@ -92,8 +92,7 @@ function onSpaNavigate() {
       });
     }
 
-    autoTranslateBanner();
-    setTimeout(autoTranslateWithoutConfirm, 1500);
+    checkAutoTranslate();
   });
 }
 
