@@ -444,7 +444,7 @@ function detectPageLanguage(text) {
 }
 
 async function checkAutoTranslate() {
-  const { autoTranslate, autoTranslateWithoutConfirm, apiKey, targetLang } = await getSettings();
+  const { autoTranslate, apiKey, targetLang } = await getSettings();
   if (!autoTranslate || !apiKey) return;
 
   const sample = getTextSample();
@@ -456,11 +456,7 @@ async function checkAutoTranslate() {
     }
   }
 
-  if (autoTranslateWithoutConfirm) {
-    translateFullPage();
-  } else {
-    showAutoTranslateBanner();
-  }
+  showAutoTranslateBanner();
 }
 
 function showAutoTranslateBanner() {

@@ -9,7 +9,6 @@ const STORAGE_KEYS = {
   ENABLE_SELECTION_TRANSLATION: 'enableSelectionTranslation',
   ENABLE_THINKING: 'enableThinking',
   AUTO_TRANSLATE: 'autoTranslate',
-  AUTO_TRANSLATE_WITHOUT_CONFIRM: 'autoTranslateWithoutConfirm',
   PROFILES: 'profiles',
   ACTIVE_PROFILE_ID: 'activeProfileId',
   MIGRATED: 'profilesMigrated',
@@ -27,7 +26,6 @@ const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.ENABLE_SELECTION_TRANSLATION]: true,
   [STORAGE_KEYS.ENABLE_THINKING]: false,
   [STORAGE_KEYS.AUTO_TRANSLATE]: false,
-  [STORAGE_KEYS.AUTO_TRANSLATE_WITHOUT_CONFIRM]: false,
 };
 
 const STORE = chrome.storage.local;

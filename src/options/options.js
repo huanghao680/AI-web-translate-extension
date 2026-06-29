@@ -168,7 +168,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('enableSelectionTranslation').checked = settings.enableSelectionTranslation;
   document.getElementById('enableThinking').checked = settings.enableThinking;
   document.getElementById('autoTranslate').checked = settings.autoTranslate;
-  document.getElementById('autoTranslateWithoutConfirm').checked = settings.autoTranslateWithoutConfirm;
 
   await refreshProfileList();
 });
@@ -226,10 +225,6 @@ document.getElementById('refreshProfileModels').addEventListener('click', async 
 });
 
 document.getElementById('autoTranslate').addEventListener('change', () => {
-  if (!document.getElementById('autoTranslate').checked) document.getElementById('autoTranslateWithoutConfirm').checked = false;
-});
-document.getElementById('autoTranslateWithoutConfirm').addEventListener('change', () => {
-  if (document.getElementById('autoTranslateWithoutConfirm').checked) document.getElementById('autoTranslate').checked = true;
 });
 
 document.getElementById('saveBtn').addEventListener('click', async () => {

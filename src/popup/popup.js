@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   document.getElementById('popupAutoTranslate').checked = settings.autoTranslate;
-  document.getElementById('popupAutoTranslateNoConfirm').checked = settings.autoTranslateWithoutConfirm;
 
   const activeProfile = (settings.profiles || []).find((p) => p.id === settings.activeProfileId);
 
@@ -93,20 +92,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('popupAutoTranslate').addEventListener('change', async (e) => {
-    const enabled = e.target.checked;
-    await chrome.storage.local.set({ autoTranslate: enabled });
-    if (!enabled) {
-      document.getElementById('popupAutoTranslateNoConfirm').checked = false;
-      await chrome.storage.local.set({ autoTranslateWithoutConfirm: false });
-    }
-    if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: enabled, autoTranslateWithoutConfirm: enabled ? document.getElementById('popupAutoTranslateNoConfirm').checked : false } });
-  });
-
-  document.getElementById('popupAutoTranslateNoConfirm').addEventListener('change', async (e) => {
-    const enabled = e.target.checked;
-    await chrome.storage.local.set({ autoTranslateWithoutConfirm: enabled });
-    if (enabled) { document.getElementById('popupAutoTranslate').checked = true; await chrome.storage.local.set({ autoTranslate: true }); }
-    if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: true, autoTranslateWithoutConfirm: enabled } });
+    await chrome.storage.local.set({ autoTranslate: e.target.checked });
+    if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: e.target.checked } });
   });
 
   document.getElementById('styleSelector').addEventListener('change', async (e) => {
