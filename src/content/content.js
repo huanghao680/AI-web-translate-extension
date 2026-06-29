@@ -359,20 +359,7 @@ async function translateSelectedElement(element) {
   if (isLiveElement) preserveOriginalContent();
 
   const textNodes = getVisibleTextNodes(element);
-  const segments = [];
-  let i = 0;
-  while (i < textNodes.length) {
-    const nodes = [textNodes[i]];
-    const parent = textNodes[i].parentNode;
-    let j = i + 1;
-    while (j < textNodes.length && textNodes[j].parentNode === parent) {
-      nodes.push(textNodes[j]);
-      j++;
-    }
-    const text = nodes.map((n) => n.textContent.trim()).filter(Boolean).join(' ');
-    if (text) segments.push({ nodes, text });
-    i = j;
-  }
+  const segments = textNodesToSegments(textNodes);
 
   const total = segments.length;
   if (total === 0) {
@@ -559,6 +546,51 @@ function stopBlockSelection() {
   if (blockToolbar) { blockToolbar.remove(); blockToolbar = null; }
 }
 
+function textNodesToSegments(textNodes) {
+  const segments = [];
+  let i = 0;
+  while (i < textNodes.length) {
+    const nodes = [textNodes[i]];
+    const parent = textNodes[i].parentNode;
+    let j = i + 1;
+    while (j < textNodes.length && textNodes[j].parentNode === parent) {
+      nodes.push(textNodes[j]);
+      j++;
+    }
+    const text = nodes.map((n) => n.textContent.trim()).filter(Boolean).join(' ');
+    if (text) segments.push({ nodes, text });
+    i = j;
+  }
+  return segments;
+}
+
+async function translateSegments(segments) {
+  const settings = await getSettings();
+  if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); return; }
+
+  const total = segments.length;
+  if (total === 0) { showNotification('没有可翻译的文本', 'info'); return; }
+
+  progressBar.show('正在翻译选中的文本...');
+  try {
+    const batchText = segments.map((s) => s.text).join('\n---SEPARATOR---\n');
+    progressBar.update(0, total, '正在翻译文本...');
+
+    const translatedBatch = await translateText(batchText, settings.targetLang, settings.sourceLang, location.href);
+    const results = translatedBatch.split('\n---SEPARATOR---\n');
+
+    for (let idx = 0; idx < segments.length; idx++) {
+      const translated = results[idx]?.trim();
+      if (translated && translated !== segments[idx].text) {
+        applyTranslationToSegment(segments[idx], translated);
+      }
+    }
+    progressBar.complete('翻译完成');
+  } catch (error) {
+    progressBar.error(`翻译失败: ${error.message}`);
+  }
+}
+
 function startSelectionMode() {
   if (selectionModeActive) return;
   selectionModeActive = true;
@@ -606,18 +638,22 @@ function onSelectionConfirm() {
   const sel = window.getSelection();
   if (!sel.rangeCount || !sel.toString().trim()) return;
   const range = sel.getRangeAt(0);
-  let container = range.commonAncestorContainer;
-  if (container.nodeType === Node.TEXT_NODE) container = container.parentElement;
-  const blocks = new Set(['P', 'DIV', 'SECTION', 'ARTICLE', 'LI', 'BLOCKQUOTE', 'TD', 'TH', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'FIGURE', 'FIGCAPTION', 'ASIDE', 'MAIN', 'HEADER', 'FOOTER']);
-  while (container && container !== document.body && !blocks.has(container.tagName)) {
-    container = container.parentElement;
-  }
+
+  const textNodes = [];
+  const walker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+      return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    },
+  });
+  let n;
+  while ((n = walker.nextNode())) textNodes.push(n);
+
   stopSelectionMode();
-  if (container && container !== document.body) {
-    translateSelectedElement(container);
-  } else {
-    showNotification('无法确定选中区域的范围', 'error');
-  }
+  if (textNodes.length === 0) { showNotification('没有可翻译的文本', 'info'); return; }
+
+  const segments = textNodesToSegments(textNodes);
+  translateSegments(segments);
 }
 
 function onBlockHover(e) {
