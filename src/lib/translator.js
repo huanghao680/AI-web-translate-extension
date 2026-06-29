@@ -1,6 +1,4 @@
-const TRANSLATION_SYSTEM_PROMPT = `你是一个专业的网页翻译助手。你的任务是将用户提供的文本翻译成指定的目标语言。
-
-翻译规则：
+const TRANSLATION_RULES = `翻译规则：
 1. 保持原文的格式、换行和标点符号
 2. 保持原文中的 HTML 标签、Markdown 标记、代码片段、变量名、URL 不变
 3. 专业术语翻译要准确
@@ -8,7 +6,21 @@ const TRANSLATION_SYSTEM_PROMPT = `你是一个专业的网页翻译助手。你
 5. 只返回翻译结果，不要添加任何解释或额外内容
 6. 文本段之间用 ---SEPARATOR--- 分隔，输出时必须保持这些分隔符的数量和位置与输入完全一致`;
 
-async function translateText(text, targetLang, sourceLang = 'auto') {
+function buildSystemPrompt(pageUrl) {
+  let ctx = '你是一个专业的网页翻译助手。你的任务是将用户提供的文本翻译成指定的目标语言。';
+  if (pageUrl) {
+    try {
+      const url = new URL(pageUrl);
+      ctx += `\n\n当前页面信息：域名 ${url.hostname}，完整路径 ${url.pathname}。翻译时请结合该网站的主题和语境，确保专业术语准确。`;
+    } catch {
+      // ignore invalid URL
+    }
+  }
+  ctx += `\n\n${TRANSLATION_RULES}`;
+  return ctx;
+}
+
+async function translateText(text, targetLang, sourceLang = 'auto', pageUrl) {
   const { baseUrl, apiKey, model, enableThinking } = await getSettings();
 
   if (!apiKey) {
@@ -28,7 +40,7 @@ ${text}`;
   const result = await client.chatCompletion({
     model,
     messages: [
-      { role: 'system', content: TRANSLATION_SYSTEM_PROMPT },
+      { role: 'system', content: buildSystemPrompt(pageUrl) },
       { role: 'user', content: userPrompt },
     ],
     temperature: 0.3,
@@ -39,7 +51,7 @@ ${text}`;
   return result;
 }
 
-async function translateTextStream(text, targetLang, sourceLang = 'auto') {
+async function translateTextStream(text, targetLang, sourceLang = 'auto', pageUrl) {
   const { baseUrl, apiKey, model, enableThinking } = await getSettings();
 
   if (!apiKey) {
@@ -59,7 +71,7 @@ ${text}`;
   return client.streamChatCompletion({
     model,
     messages: [
-      { role: 'system', content: TRANSLATION_SYSTEM_PROMPT },
+      { role: 'system', content: buildSystemPrompt(pageUrl) },
       { role: 'user', content: userPrompt },
     ],
     temperature: 0.3,
@@ -68,7 +80,7 @@ ${text}`;
   });
 }
 
-async function translatePage(htmlContent, targetLang, sourceLang = 'auto') {
+async function translatePage(htmlContent, targetLang, sourceLang = 'auto', pageUrl) {
   const { baseUrl, apiKey, model, enableThinking } = await getSettings();
 
   if (!apiKey) {
@@ -89,7 +101,7 @@ ${htmlContent}`;
   const result = await client.chatCompletion({
     model,
     messages: [
-      { role: 'system', content: TRANSLATION_SYSTEM_PROMPT },
+      { role: 'system', content: buildSystemPrompt(pageUrl) },
       { role: 'user', content: userPrompt },
     ],
     temperature: 0.3,
@@ -100,7 +112,7 @@ ${htmlContent}`;
   return result;
 }
 
-async function translateWord(word, targetLang, sourceLang = 'auto') {
+async function translateWord(word, targetLang, sourceLang = 'auto', pageUrl) {
   const { baseUrl, apiKey, model, enableThinking } = await getSettings();
 
   if (!apiKey) {
@@ -122,10 +134,14 @@ async function translateWord(word, targetLang, sourceLang = 'auto') {
 
 单词/短语：${word}`;
 
+  const systemPrompt = pageUrl
+    ? buildSystemPrompt(pageUrl)
+    : '你是一个翻译助手，专注于单词和短语的翻译与解释。';
+
   const result = await client.chatCompletion({
     model,
     messages: [
-      { role: 'system', content: '你是一个翻译助手，专注于单词和短语的翻译与解释。' },
+      { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
     temperature: 0.3,

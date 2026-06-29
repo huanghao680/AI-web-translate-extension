@@ -309,7 +309,8 @@ async function translateFullPage() {
       const translatedBatch = await translateText(
         batchText,
         settings.targetLang,
-        settings.sourceLang
+        settings.sourceLang,
+        location.href
       );
 
       const results = translatedBatch.split('\n---SEPARATOR---\n');
@@ -379,7 +380,8 @@ async function translateSelectedElement(element) {
     const translatedBatch = await translateText(
       batchText,
       settings.targetLang,
-      settings.sourceLang
+      settings.sourceLang,
+      location.href
     );
 
     const results = translatedBatch.split('\n---SEPARATOR---\n');

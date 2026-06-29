@@ -82,7 +82,7 @@ class SelectionTooltip {
 
     try {
       const { targetLang, sourceLang } = await getSettings();
-      const result = await translateWord(this.selectedText, targetLang, sourceLang);
+      const result = await translateWord(this.selectedText, targetLang, sourceLang, location.href);
       body.textContent = result;
     } catch (error) {
       body.innerHTML = `<div class="ai-translator-tooltip-error">翻译失败: ${error.message}</div>`;
