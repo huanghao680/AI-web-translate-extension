@@ -8,10 +8,31 @@ const TRANSLATION_RULES = `翻译规则：
 
 const STYLE_PROMPTS = {
   default: '',
-  formal: '\n翻译要求：使用正式的书面语风格，措辞严谨，避免口语化表达。',
-  concise: '\n翻译要求：力求简洁精炼，在保证准确的前提下尽量缩短译文长度。',
-  academic: '\n翻译要求：学术翻译风格，术语翻译要求精确统一，句式结构完整严谨。',
+  formal: `\n翻译要求：使用正式的书面语风格，措辞严谨，避免口语化表达。
+- 将英文中的缩略形式（如 don't、it's、won't）展开为完整形式（do not、it is、will not）
+- 使用被动语态和长句结构以增强正式感
+- 避免俚语、网络用语和感叹语气`,
+  concise: `\n翻译要求：力求简洁精炼，在保证准确的前提下尽量缩短译文长度。
+- 省略原文中的冗余修饰词和填充词
+- 复合从句拆分为简短独立的短句
+- 中文译文优先使用四字成语和短结构`,
+  academic: `\n翻译要求：学术翻译风格，术语翻译要求精确统一，句式结构完整严谨。
+- 专业术语首次出现时在括号内标注英文原文
+- 全文保持术语翻译一致性，同一术语不允许出现不同译法
+- 长难句保留原文的逻辑关系层次，不随意拆分
+- 采用学术论文式的客观中立语气`,
 };
+
+const STYLE_TEMPERATURE = {
+  default: 0.3,
+  formal: 0.15,
+  concise: 0.4,
+  academic: 0.1,
+};
+
+function getTemperature(style) {
+  return STYLE_TEMPERATURE[style] ?? 0.3;
+}
 
 function buildSystemPrompt(pageUrl, style) {
   let ctx = '你是一个专业的网页翻译助手。你的任务是将用户提供的文本翻译成指定的目标语言。';
@@ -53,7 +74,7 @@ async function translateText(text, targetLang, sourceLang = 'auto', pageUrl) {
       { role: 'system', content: buildSystemPrompt(pageUrl, opts.translationStyle) },
       { role: 'user', content: `请将以下${sourceLangText}文本翻译成${targetLang}：\n\n${text}` },
     ],
-    temperature: opts.translationStyle === 'formal' ? 0.2 : 0.3,
+    temperature: getTemperature(opts.translationStyle),
     maxTokens: opts.maxTokens,
     thinkingDisabled: !opts.enableThinking,
   });
@@ -74,7 +95,7 @@ async function translateTextStream(text, targetLang, sourceLang = 'auto', pageUr
       { role: 'system', content: buildSystemPrompt(pageUrl, opts.translationStyle) },
       { role: 'user', content: `请将以下${sourceLangText}文本翻译成${targetLang}：\n\n${text}` },
     ],
-    temperature: opts.translationStyle === 'formal' ? 0.2 : 0.3,
+    temperature: getTemperature(opts.translationStyle),
     maxTokens: opts.maxTokens,
     thinkingDisabled: !opts.enableThinking,
   });
@@ -93,7 +114,7 @@ async function translatePage(htmlContent, targetLang, sourceLang = 'auto', pageU
       { role: 'system', content: buildSystemPrompt(pageUrl, opts.translationStyle) },
       { role: 'user', content: `请将以下${sourceLangText}网页内容完整翻译成${targetLang}。\n注意：只翻译可见文本内容，保留所有 HTML 标签和属性结构不变。\n\n${htmlContent}` },
     ],
-    temperature: opts.translationStyle === 'formal' ? 0.2 : 0.3,
+    temperature: getTemperature(opts.translationStyle),
     maxTokens: opts.maxTokens,
     thinkingDisabled: !opts.enableThinking,
   });
