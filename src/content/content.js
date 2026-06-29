@@ -364,7 +364,7 @@ function showSummaryPanel(content) {
   panel.className = 'ai-translator-summary';
   panel.innerHTML = `
     <div class="ai-translator-summary-header">
-      <span>📋 总结翻译</span>
+      <span>📋 总结性翻译</span>
       <button class="ai-translator-summary-close">&times;</button>
     </div>
     <div class="ai-translator-summary-body">${content.replace(/\n/g, '<br>')}</div>
@@ -395,10 +395,10 @@ async function handleSummaryTranslation() {
       settings.sourceLang,
       location.href
     );
-    progressBar.complete('总结翻译完成');
+    progressBar.complete('总结性翻译完成');
     showSummaryPanel(result);
   } catch (error) {
-    progressBar.error(`总结翻译失败: ${error.message}`);
+    progressBar.error(`总结性翻译失败: ${error.message}`);
   } finally {
     isTranslating = false;
   }
