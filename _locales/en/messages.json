@@ -77,5 +77,14 @@
   "langKo": { "message": "Korean" },
   "setTranslation": { "message": "Translation Settings" },
   "setStyle": { "message": "Translation Style" },
-  "setOther": { "message": "Other Settings" }
+  "setOther": { "message": "Other Settings" },
+  "hintApiKey": { "message": "API key for the LLM service" },
+  "hintModel": { "message": "Select or enter a model name" },
+  "hintMaxTokens": { "message": "DeepSeek: up to 384000, MiMo: up to 131072. Recommended: 32768" },
+  "labelBannerAction": { "message": "Action when banner Translate clicked" },
+  "labelLanguage": { "message": "Plugin Language" },
+  "optionsTesting": { "message": "Testing..." },
+  "testSuccess": { "message": "Connected! Response: " },
+  "testFail": { "message": "Connection failed: " },
+  "exportWarning": { "message": "The exported config file contains plaintext API keys.\nKeep it secure and do not upload to public networks.\n\nContinue export?" }
 }

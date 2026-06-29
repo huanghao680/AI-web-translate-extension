@@ -255,8 +255,8 @@ document.getElementById('testBtn').addEventListener('click', async () => {
   if (!active || !active.apiKey) { showSaveStatus('请先在配置中填写 API Key', 'error'); return; }
 
   const btn = document.getElementById('testBtn');
-  btn.disabled = true; btn.textContent = '测试中...';
-  showSaveStatus('正在测试连接...', 'success');
+  btn.disabled = true; btn.textContent = __('optionsTesting');
+  showSaveStatus(__('optionsTesting'), 'success');
   try {
     const enableThinking = document.getElementById('enableThinking').checked;
     const body = { model: active.model, messages: [{ role: 'user', content: 'Hello' }], max_tokens: 10, stream: false };
@@ -268,13 +268,13 @@ document.getElementById('testBtn').addEventListener('click', async () => {
     if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
     const data = await resp.json();
     const reply = data.choices?.[0]?.message?.content || '';
-    showSaveStatus(`连接成功！响应: ${reply.substring(0, 50)}`, 'success');
-  } catch (err) { showSaveStatus(`连接失败: ${err.message}`, 'error'); }
-  finally { btn.disabled = false; btn.textContent = '测试连接'; }
+    showSaveStatus(__('testSuccess') + reply.substring(0, 50), 'success');
+  } catch (err) { showSaveStatus(__('testFail') + err.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = __('optionsTest'); }
 });
 
 document.getElementById('exportBtn').addEventListener('click', () => {
-  if (!confirm('导出的配置文件以明文形式包含 API Key 等敏感信息。\n请妥善保管，切勿泄露给他人或上传到公开网络。\n\n是否继续导出？')) return;
+  if (!confirm(__('exportWarning'))) return;
   exportConfig();
 });
 document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('importFileInput').click(); });

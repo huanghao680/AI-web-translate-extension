@@ -33,7 +33,7 @@
       <div class="form-group">
         <label for="profileApiKey" data-i18n="optionsApiKey">API Key</label>
         <input type="password" id="profileApiKey" placeholder="sk-" />
-        <span class="hint">用于调用大语言模型 API 的密钥</span>
+        <span class="hint" data-i18n="hintApiKey">用于调用大语言模型 API 的密钥</span>
       </div>
       <div class="form-group" style="position:relative;">
         <label for="profileModel" data-i18n="optionsModel">模型名称</label>
@@ -44,12 +44,12 @@
           <button id="refreshProfileModels" class="btn btn-small" type="button" title="从 API 获取模型列表">🔄</button>
         </div>
         <input type="text" id="profileModelCustom" placeholder="deepseek-v4-flash" style="display:none;margin-top:6px;" />
-        <span class="hint">选择或手动输入模型名称</span>
+        <span class="hint" data-i18n="hintModel">选择或手动输入模型名称</span>
       </div>
       <div class="form-group">
         <label for="profileMaxTokens" data-i18n="optionsMaxTokens">最大输出 Tokens</label>
         <input type="number" id="profileMaxTokens" placeholder="32768" min="1024" max="384000" />
-        <span class="hint">DeepSeek 最多 384000，MiMo 最多 131072。建议保持默认 32768</span>
+        <span class="hint" data-i18n="hintMaxTokens">DeepSeek 最多 384000，MiMo 最多 131072。建议保持默认 32768</span>
       </div>
       <div class="profile-editor-actions">
         <button id="saveProfileBtn" class="btn btn-primary" data-i18n="optionsSaveProfile">保存配置</button>
@@ -132,7 +132,7 @@
         <span class="hint" data-i18n="labelTranslatePrompt">页面加载时弹出翻译提示条</span>
       </div>
       <div class="form-group">
-        <label for="autoTranslateAction" style="padding-left:20px;font-size:13px;color:#888;font-weight:400;">提示条点击翻译后执行</label>
+        <label for="autoTranslateAction" style="padding-left:20px;font-size:13px;color:#888;font-weight:400;" data-i18n="labelBannerAction">提示条点击翻译后执行</label>
         <select id="autoTranslateAction" style="margin-left:20px;width:calc(100% - 20px);">
           <option value="full" data-i18n="btnFullPage">整页翻译</option>
           <option value="summary" data-i18n="btnSummary">总结性翻译</option>
@@ -146,7 +146,7 @@
         <span class="hint">仅提取正文区域发送给 AI，减少 Token 消耗（适用于文章类页面）</span>
       </div>
       <div class="form-group">
-        <label for="language" style="font-size:13px;color:#888;font-weight:400;">插件语言</label>
+        <label for="language" style="font-size:13px;color:#888;font-weight:400;" data-i18n="labelLanguage">插件语言</label>
         <select id="language">
           <option value="auto">跟随浏览器设置</option>
           <option value="zh_CN" data-i18n="langZh">中文</option>

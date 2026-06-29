@@ -77,5 +77,14 @@
   "langKo": { "message": "韩文" },
   "setTranslation": { "message": "翻译设置" },
   "setStyle": { "message": "翻译风格" },
-  "setOther": { "message": "其他设置" }
+  "setOther": { "message": "其他设置" },
+  "hintApiKey": { "message": "用于调用大语言模型 API 的密钥" },
+  "hintModel": { "message": "选择或手动输入模型名称" },
+  "hintMaxTokens": { "message": "DeepSeek 最多 384000，MiMo 最多 131072。建议保持默认 32768" },
+  "labelBannerAction": { "message": "提示条点击翻译后执行" },
+  "labelLanguage": { "message": "插件语言" },
+  "optionsTesting": { "message": "测试中..." },
+  "testSuccess": { "message": "连接成功！响应: " },
+  "testFail": { "message": "连接失败: " },
+  "exportWarning": { "message": "导出的配置文件以明文形式包含 API Key 等敏感信息。\n请妥善保管，切勿泄露给他人或上传到公开网络。\n\n是否继续导出？" }
 }
