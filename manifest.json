@@ -21,6 +21,7 @@
       "js": [
         "src/lib/storage.js",
         "src/lib/error-log.js",
+        "src/lib/token-usage.js",
         "src/lib/api-client.js",
         "src/lib/translator.js",
         "src/lib/content-extractor.js",

@@ -63,6 +63,7 @@ class ApiClient {
     }
 
     const data = await response.json();
+    if (data.usage) TokenUsage.record(data.usage);
     return data.choices[0].message.content;
   }
 

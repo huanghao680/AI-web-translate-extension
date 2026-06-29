@@ -64,6 +64,14 @@
       </div>
     </div>
 
+    <div class="token-stats">
+      <div class="token-stats-header">Token 统计</div>
+      <div class="token-stats-row"><span>上次输入</span><span id="tokenLastPrompt">-</span></div>
+      <div class="token-stats-row"><span>上次输出</span><span id="tokenLastCompletion">-</span></div>
+      <div class="token-stats-row"><span>累计输入</span><span id="tokenTotalPrompt">-</span></div>
+      <div class="token-stats-row"><span>累计输出</span><span id="tokenTotalCompletion">-</span></div>
+    </div>
+
     <div class="popup-toggles">
       <label class="popup-toggle">
         <span>翻译提示</span>
@@ -89,6 +97,7 @@
 
   <script src="../lib/storage.js"></script>
   <script src="../lib/error-log.js"></script>
+  <script src="../lib/token-usage.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

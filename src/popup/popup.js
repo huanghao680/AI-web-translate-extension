@@ -109,6 +109,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('openOptions').addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
 
+  const stats = await TokenUsage.getStats();
+  const fmt = (n) => (n || 0).toLocaleString();
+  document.getElementById('tokenLastPrompt').textContent = fmt(stats.last.prompt);
+  document.getElementById('tokenLastCompletion').textContent = fmt(stats.last.completion);
+  document.getElementById('tokenTotalPrompt').textContent = fmt(stats.cumulative.prompt);
+  document.getElementById('tokenTotalCompletion').textContent = fmt(stats.cumulative.completion);
+
   const logs = await ErrorLog.getAll();
   if (logs.length > 0) {
     const section = document.getElementById('errorLogSection');
