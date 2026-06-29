@@ -20,31 +20,34 @@ function buildSystemPrompt(pageUrl) {
   return ctx;
 }
 
+async function getApiSettings() {
+  const { enableThinking } = await getSettings();
+  const profile = await getActiveProfile();
+  return {
+    baseUrl: profile?.baseUrl || '',
+    apiKey: profile?.apiKey || '',
+    model: profile?.model || '',
+    enableThinking,
+    maxTokens: profile?.maxTokens || 32768,
+  };
+}
+
 async function translateText(text, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking } = await getSettings();
+  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
 
-  if (!apiKey) {
-    throw new Error('请先在设置中配置 API Key');
-  }
+  if (!apiKey) throw new Error('请先在设置中配置 API Key');
 
-  const sourceLangText = sourceLang === 'auto'
-    ? '自动检测'
-    : sourceLang;
-
+  const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
   const client = new ApiClient(baseUrl, apiKey);
-
-  const userPrompt = `请将以下${sourceLangText}文本翻译成${targetLang}：
-
-${text}`;
 
   const result = await client.chatCompletion({
     model,
     messages: [
       { role: 'system', content: buildSystemPrompt(pageUrl) },
-      { role: 'user', content: userPrompt },
+      { role: 'user', content: `请将以下${sourceLangText}文本翻译成${targetLang}：\n\n${text}` },
     ],
     temperature: 0.3,
-    maxTokens: 384000,
+    maxTokens,
     thinkingDisabled: !enableThinking,
   });
 
@@ -52,60 +55,41 @@ ${text}`;
 }
 
 async function translateTextStream(text, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking } = await getSettings();
+  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
 
-  if (!apiKey) {
-    throw new Error('请先在设置中配置 API Key');
-  }
+  if (!apiKey) throw new Error('请先在设置中配置 API Key');
 
-  const sourceLangText = sourceLang === 'auto'
-    ? '自动检测'
-    : sourceLang;
-
+  const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
   const client = new ApiClient(baseUrl, apiKey);
-
-  const userPrompt = `请将以下${sourceLangText}文本翻译成${targetLang}：
-
-${text}`;
 
   return client.streamChatCompletion({
     model,
     messages: [
       { role: 'system', content: buildSystemPrompt(pageUrl) },
-      { role: 'user', content: userPrompt },
+      { role: 'user', content: `请将以下${sourceLangText}文本翻译成${targetLang}：\n\n${text}` },
     ],
     temperature: 0.3,
-    maxTokens: 384000,
+    maxTokens,
     thinkingDisabled: !enableThinking,
   });
 }
 
 async function translatePage(htmlContent, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking } = await getSettings();
+  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
 
-  if (!apiKey) {
-    throw new Error('请先在设置中配置 API Key');
-  }
+  if (!apiKey) throw new Error('请先在设置中配置 API Key');
 
-  const sourceLangText = sourceLang === 'auto'
-    ? '自动检测'
-    : sourceLang;
-
+  const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
   const client = new ApiClient(baseUrl, apiKey);
-
-  const userPrompt = `请将以下${sourceLangText}网页内容完整翻译成${targetLang}。
-注意：只翻译可见文本内容，保留所有 HTML 标签和属性结构不变。
-
-${htmlContent}`;
 
   const result = await client.chatCompletion({
     model,
     messages: [
       { role: 'system', content: buildSystemPrompt(pageUrl) },
-      { role: 'user', content: userPrompt },
+      { role: 'user', content: `请将以下${sourceLangText}网页内容完整翻译成${targetLang}。\n注意：只翻译可见文本内容，保留所有 HTML 标签和属性结构不变。\n\n${htmlContent}` },
     ],
     temperature: 0.3,
-    maxTokens: 384000,
+    maxTokens,
     thinkingDisabled: !enableThinking,
   });
 
@@ -113,26 +97,12 @@ ${htmlContent}`;
 }
 
 async function translateWord(word, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking } = await getSettings();
+  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
 
-  if (!apiKey) {
-    throw new Error('请先在设置中配置 API Key');
-  }
+  if (!apiKey) throw new Error('请先在设置中配置 API Key');
 
-  const sourceLangText = sourceLang === 'auto'
-    ? '自动检测'
-    : sourceLang;
-
+  const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
   const client = new ApiClient(baseUrl, apiKey);
-
-  const userPrompt = `请将以下${sourceLangText}单词/短语翻译成${targetLang}。
-如果可能，请提供：
-1. 中文释义
-2. 音标（如果是英文）
-3. 词性
-4. 例句
-
-单词/短语：${word}`;
 
   const systemPrompt = pageUrl
     ? buildSystemPrompt(pageUrl)
@@ -142,10 +112,10 @@ async function translateWord(word, targetLang, sourceLang = 'auto', pageUrl) {
     model,
     messages: [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
+      { role: 'user', content: `请将以下${sourceLangText}单词/短语翻译成${targetLang}。\n如果可能，请提供：\n1. 中文释义\n2. 音标（如果是英文）\n3. 词性\n4. 例句\n\n单词/短语：${word}` },
     ],
     temperature: 0.3,
-    maxTokens: 1024,
+    maxTokens: Math.min(maxTokens, 1024),
     thinkingDisabled: !enableThinking,
   });
 

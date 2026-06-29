@@ -68,6 +68,7 @@ function openEditor(id) {
     document.getElementById('profileBaseUrl').value = p.baseUrl;
     document.getElementById('profileApiKey').value = p.apiKey;
     setModelValue(p.model);
+    document.getElementById('profileMaxTokens').value = p.maxTokens ?? 32768;
     document.getElementById('deleteProfileBtn').style.display = 'inline-block';
   });
 }
@@ -78,15 +79,17 @@ async function saveProfile() {
   const baseUrl = document.getElementById('profileBaseUrl').value.trim();
   const apiKey = document.getElementById('profileApiKey').value.trim();
   const model = getModelValue();
+  const maxTokens = parseInt(document.getElementById('profileMaxTokens').value.trim(), 10) || 32768;
 
   if (!name) { showSaveStatus('请输入配置名称', 'error'); return; }
   if (!apiKey) { showSaveStatus('请输入 API Key', 'error'); return; }
   if (!baseUrl) { showSaveStatus('请输入 API Base URL', 'error'); return; }
   if (!model) { showSaveStatus('请输入模型名称', 'error'); return; }
+  if (maxTokens < 1024 || maxTokens > 384000) { showSaveStatus('最大输出 Tokens 必须在 1024-384000 之间', 'error'); return; }
 
   const { profiles, activeProfileId } = await getProfiles();
   const idx = profiles.findIndex((p) => p.id === id);
-  const profile = { id, name, baseUrl, apiKey, model };
+  const profile = { id, name, baseUrl, apiKey, model, maxTokens };
 
   if (idx >= 0) {
     profiles[idx] = profile;
@@ -157,6 +160,7 @@ document.getElementById('addProfileBtn').addEventListener('click', () => {
   document.getElementById('profileBaseUrl').value = '';
   document.getElementById('profileApiKey').value = '';
   setModelValue('');
+  document.getElementById('profileMaxTokens').value = 32768;
   document.getElementById('deleteProfileBtn').style.display = 'none';
 });
 

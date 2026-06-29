@@ -46,6 +46,11 @@
         <input type="text" id="profileModelCustom" placeholder="deepseek-v4-flash" style="display:none;margin-top:6px;" />
         <span class="hint">选择或手动输入模型名称</span>
       </div>
+      <div class="form-group">
+        <label for="profileMaxTokens">最大输出 Tokens</label>
+        <input type="number" id="profileMaxTokens" placeholder="32768" min="1024" max="384000" />
+        <span class="hint">DeepSeek 最多 384000，MiMo 最多 131072。建议保持默认 32768</span>
+      </div>
       <div class="profile-editor-actions">
         <button id="saveProfileBtn" class="btn btn-primary">保存配置</button>
         <button id="cancelProfileBtn" class="btn btn-outline">取消</button>

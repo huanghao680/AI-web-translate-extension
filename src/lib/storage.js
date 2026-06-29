@@ -77,9 +77,15 @@ async function getProfiles() {
   return { profiles: profiles || [], activeProfileId: activeProfileId || '' };
 }
 
+function ensureProfileDefaults(p) {
+  if (p.maxTokens == null) p.maxTokens = 32768;
+  return p;
+}
+
 async function saveProfiles(profiles, activeProfileId) {
+  profiles = (profiles || []).map(ensureProfileDefaults);
   await chrome.storage.sync.set({ profiles, activeProfileId });
-  const active = (profiles || []).find((p) => p.id === activeProfileId);
+  const active = profiles.find((p) => p.id === activeProfileId);
   if (active) {
     await chrome.storage.sync.set({
       apiKey: active.apiKey,
@@ -87,6 +93,12 @@ async function saveProfiles(profiles, activeProfileId) {
       model: active.model,
     });
   }
+}
+
+async function getActiveProfile() {
+  const { profiles, activeProfileId } = await getProfiles();
+  const p = (profiles || []).find((pr) => pr.id === activeProfileId);
+  return p ? ensureProfileDefaults(p) : null;
 }
 
 async function getActiveProfile() {
