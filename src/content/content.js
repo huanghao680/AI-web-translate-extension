@@ -443,21 +443,9 @@ function detectPageLanguage(text) {
   return bestScore > 0.05 ? best : null;
 }
 
-async function autoTranslateBanner() {
+async function checkAutoTranslate() {
   const { autoTranslate, autoTranslateWithoutConfirm, apiKey, targetLang } = await getSettings();
-  if (!autoTranslate || autoTranslateWithoutConfirm || !apiKey) return;
-
-  const sample = getTextSample();
-  if (sample) {
-    const pageLang = detectPageLanguage(sample);
-    if (pageLang && pageLang === targetLang) return;
-  }
-  showAutoTranslateBanner();
-}
-
-async function autoTranslateWithoutConfirm() {
-  const { autoTranslate, autoTranslateWithoutConfirm, apiKey, targetLang } = await getSettings();
-  if (!autoTranslate || !autoTranslateWithoutConfirm || !apiKey) return;
+  if (!autoTranslate || !apiKey) return;
 
   const sample = getTextSample();
   if (sample) {
@@ -467,7 +455,12 @@ async function autoTranslateWithoutConfirm() {
       return;
     }
   }
-  translateFullPage();
+
+  if (autoTranslateWithoutConfirm) {
+    translateFullPage();
+  } else {
+    showAutoTranslateBanner();
+  }
 }
 
 function showAutoTranslateBanner() {
@@ -489,12 +482,14 @@ function showAutoTranslateBanner() {
   banner.querySelector('[data-action="translate"]').addEventListener('click', () => {
     banner.remove();
     translateFullPage();
-      });
-
-      autoTranslateBanner();
-      setTimeout(autoTranslateWithoutConfirm, 1500);
-    });
   });
+
+  banner.querySelector('[data-action="cancel"]').addEventListener('click', () => {
+    banner.remove();
+  });
+
+  document.body.prepend(banner);
+  requestAnimationFrame(() => banner.classList.add('ai-translator-banner--visible'));
 }
 
 function hideAutoTranslateBanner() {
@@ -805,20 +800,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function waitForPageReady(callback) {
-  if (document.readyState === 'complete') { callback(); return; }
-  window.addEventListener('load', callback, { once: true });
+  let fired = false;
+  const once = () => { if (!fired) { fired = true; callback(); } };
+  if (document.readyState === 'complete') { once(); return; }
+  window.addEventListener('load', once, { once: true });
+  setTimeout(once, 8000);
 }
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     init();
-    autoTranslateBanner(); // show banner early if needed
   });
 } else {
   init();
-  autoTranslateBanner();
 }
 
 waitForPageReady(() => {
-  autoTranslateWithoutConfirm(); // translate only after page fully loaded
+  checkAutoTranslate();
 });
