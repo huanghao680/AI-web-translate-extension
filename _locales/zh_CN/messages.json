@@ -41,7 +41,7 @@
   "notifSummaryDone": { "message": "总结性翻译完成" },
   "notifSummaryFail": { "message": "总结性翻译失败: {error}" },
   "notifSummaryTitle": { "message": "总结性翻译" },
-  "notifSelectText": { "message": "在页面上选中文本，然后点击弹出的"翻译"按钮" },
+  "notifSelectText": { "message": "在页面上选中文本，然后点击弹出的「翻译」按钮" },
   "notifSelectionCancelled": { "message": "已取消选中翻译" },
   "notifSelectionEmpty": { "message": "无法确定选中区域的范围" },
   "notifBlockHint": { "message": "点击选择一个内容块，上下方向键调整范围" },

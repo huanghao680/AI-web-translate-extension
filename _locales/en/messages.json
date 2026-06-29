@@ -41,7 +41,7 @@
   "notifSummaryDone": { "message": "Summary translation complete" },
   "notifSummaryFail": { "message": "Summary translation failed: {error}" },
   "notifSummaryTitle": { "message": "Summary" },
-  "notifSelectText": { "message": "Select text on the page, then click the "Translate" button" },
+  "notifSelectText": { "message": "Select text on the page, then click the Translate button" },
   "notifSelectionCancelled": { "message": "Selection cancelled" },
   "notifSelectionEmpty": { "message": "Cannot determine selection range" },
   "notifBlockHint": { "message": "Click to select a block, use arrow keys to adjust range" },
