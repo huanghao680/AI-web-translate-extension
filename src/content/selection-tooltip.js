@@ -15,7 +15,7 @@ class SelectionTooltip {
     }
 
     this.element.querySelector('.ai-translator-tooltip-body').innerHTML =
-      '<div class="ai-translator-tooltip-loading"><span class="ai-translator-tooltip-spinner"></span>翻译中...</div>';
+      '<div class="ai-translator-tooltip-loading"><span class="ai-translator-tooltip-spinner"></span>' + __('translating') + '</div>';
 
     this.element.style.display = 'block';
 
@@ -56,7 +56,7 @@ class SelectionTooltip {
     tooltip.className = 'ai-translator-tooltip';
     tooltip.innerHTML = `
       <div class="ai-translator-tooltip-header">
-        <span>翻译</span>
+        <span>${__('btnTranslate')}</span>
         <button class="ai-translator-tooltip-close">&times;</button>
       </div>
       <div class="ai-translator-tooltip-body"></div>
@@ -85,7 +85,7 @@ class SelectionTooltip {
       const result = await translateWord(this.selectedText, targetLang, sourceLang, location.href);
       body.textContent = result;
     } catch (error) {
-      body.innerHTML = `<div class="ai-translator-tooltip-error">翻译失败: ${error.message}</div>`;
+      body.innerHTML = `<div class="ai-translator-tooltip-error">${__('progressFailed')}: ${error.message}</div>`;
     }
   }
 }

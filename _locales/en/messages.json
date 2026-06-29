@@ -89,5 +89,11 @@
   "optionsTesting": { "message": "Testing..." },
   "testSuccess": { "message": "Connected! Response: " },
   "testFail": { "message": "Connection failed: " },
-  "exportWarning": { "message": "The exported config file contains plaintext API keys.\nKeep it secure and do not upload to public networks.\n\nContinue export?" }
+  "exportWarning": { "message": "The exported config file contains plaintext API keys.\nKeep it secure and do not upload to public networks.\n\nContinue export?" },
+  "progressPreparing": { "message": "Preparing..." },
+  "progressDone": { "message": "Done" },
+  "progressComplete": { "message": "Translation complete" },
+  "progressFailed": { "message": "Translation failed" },
+  "translating": { "message": "Translating..." },
+  "selectBlockHint": { "message": "Click to select a block, arrow keys to adjust, Enter to confirm" }
 }

@@ -23,8 +23,8 @@ class TranslationProgressBar {
         <div class="ai-translator-progress-bar" style="width: 0%"></div>
       </div>
       <div class="ai-translator-progress-subtitle">
-        <span class="ai-translator-progress-status">准备中...</span>
-        <button class="ai-translator-progress-cancel">取消</button>
+        <span class="ai-translator-progress-status">${__('progressPreparing')}</span>
+        <button class="ai-translator-progress-cancel">${__('btnCancel')}</button>
       </div>
     `;
 
@@ -70,8 +70,8 @@ class TranslationProgressBar {
       bar.classList.add('ai-translator-progress-bar--complete');
     }
     if (pctEl) pctEl.textContent = '100%';
-    if (statusEl) statusEl.textContent = message || '完成';
-    if (titleEl) titleEl.textContent = message || '翻译完成';
+    if (statusEl) statusEl.textContent = message || __('progressDone');
+    if (titleEl) titleEl.textContent = message || __('progressComplete');
     if (spinner) spinner.remove();
     if (cancelBtn) cancelBtn.remove();
 
@@ -90,8 +90,8 @@ class TranslationProgressBar {
     if (bar) {
       bar.classList.add('ai-translator-progress-bar--error');
     }
-    if (statusEl) statusEl.textContent = message || '翻译失败';
-    if (titleEl) titleEl.textContent = '翻译失败';
+    if (statusEl) statusEl.textContent = message || __('progressFailed');
+    if (titleEl) titleEl.textContent = __('progressFailed');
     if (spinner) spinner.remove();
     if (cancelBtn) cancelBtn.remove();
 

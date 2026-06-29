@@ -280,7 +280,7 @@ async function translateFullPage() {
   }
 
   preserveOriginalContent();
-  progressBar.show('正在分析页面...');
+  progressBar.show(__('notifAnalyzing'));
   progressBar.setCancelCallback(() => {
     isTranslating = false;
     translatedContent = null;
@@ -299,7 +299,7 @@ async function translateFullPage() {
       const extracted = getContentSegments();
       if (extracted) {
         segments = extracted.segments;
-        progressBar.show('正在翻译正文...');
+        progressBar.show(__('notifTranslatingContent'));
       }
     }
     if (!segments) segments = getPageSegments();
@@ -321,7 +321,7 @@ async function translateFullPage() {
       progressBar.update(
         start,
         total,
-        `正在翻译 ${start + 1}-${end}/${total} 段（第 ${batchIndex + 1}/${totalBatches} 批）`
+        __('translating') + ` ${start + 1}-${end}/${total}（${batchIndex + 1}/${totalBatches}）`
       );
 
       const translatedBatch = await translateText(
@@ -341,7 +341,7 @@ async function translateFullPage() {
       }
     }
 
-    progressBar.complete('整页翻译完成');
+    progressBar.complete(__('notifTranslationDone'));
     saveTranslatedContent();
   } catch (error) {
     if (originalContent) {
@@ -350,7 +350,7 @@ async function translateFullPage() {
     }
     translatedContent = null;
     displayMode = 'original';
-    progressBar.error(`翻译失败: ${error.message}`);
+    progressBar.error(__('progressFailed') + ': ' + error.message);
   } finally {
     isTranslating = false;
     TokenUsage.endSession();
@@ -365,7 +365,7 @@ function showSummaryPanel(content) {
   panel.className = 'ai-translator-summary';
   panel.innerHTML = `
     <div class="ai-translator-summary-header">
-      <span>📋 总结性翻译</span>
+      <span>📋 ${__('notifSummaryTitle')}</span>
       <button class="ai-translator-summary-close">&times;</button>
     </div>
     <div class="ai-translator-summary-body">${content.replace(/\n/g, '<br>')}</div>
@@ -376,20 +376,20 @@ function showSummaryPanel(content) {
 }
 
 async function handleSummaryTranslation() {
-  if (isTranslating) { showNotification('正在翻译中，请稍候...', 'info'); return; }
+  if (isTranslating) { showNotification(__('notifTranslating'), 'info'); return; }
   isTranslating = true;
 
   const settings = await getSettings();
-  if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); isTranslating = false; return; }
+  if (!settings.apiKey) { showNotification(__('notifConfigApiKey'), 'error'); isTranslating = false; return; }
 
-  progressBar.show('正在总结并翻译...');
+  progressBar.show(__('notifSummarizing'));
   TokenUsage.startSession();
   try {
     const segments = settings.enableContentOptimization
       ? (getContentSegments()?.segments || getPageSegments())
       : getPageSegments();
     const fullText = segments.map((s) => s.text).join('\n\n');
-    progressBar.update(0, 1, '正在发送到 AI...');
+    progressBar.update(0, 1, __('notifSendingToAi'));
 
     const result = await translateSummary(
       fullText,
@@ -397,10 +397,10 @@ async function handleSummaryTranslation() {
       settings.sourceLang,
       location.href
     );
-    progressBar.complete('总结性翻译完成');
+    progressBar.complete(__('notifSummaryDone'));
     showSummaryPanel(result);
   } catch (error) {
-    progressBar.error(`总结性翻译失败: ${error.message}`);
+    progressBar.error(`${__('notifSummaryFail')}: ${error.message}`);
   } finally {
     isTranslating = false;
     TokenUsage.endSession();
@@ -414,7 +414,7 @@ async function translateSelectedElement(element) {
     return;
   }
 
-  const isLiveElement = element.isConnected && document.body.contains(element);
+    const isLiveElement = element.isConnected && document.body.contains(element);
   if (isLiveElement) preserveOriginalContent();
 
   const textNodes = getVisibleTextNodes(element);
@@ -426,12 +426,12 @@ async function translateSelectedElement(element) {
     return;
   }
 
-  progressBar.show('正在翻译选中区域...');
+  progressBar.show(__('translating'));
 
   try {
     const batchText = segments.map((s) => s.text).join('\n---SEPARATOR---\n');
 
-    progressBar.update(0, total, '正在翻译文本...');
+    progressBar.update(0, total, __('translating'));
 
     const translatedBatch = await translateText(
       batchText,
@@ -451,9 +451,9 @@ async function translateSelectedElement(element) {
 
     if (isLiveElement) saveTranslatedContent();
 
-    progressBar.complete('区域翻译完成');
+    progressBar.complete((isLiveElement ? __('notifTranslationDone') : __('progressComplete')));
   } catch (error) {
-    progressBar.error(`翻译失败: ${error.message}`);
+    progressBar.error(__('progressFailed') + ': ' + error.message);
   }
 }
 
@@ -510,7 +510,7 @@ async function checkAutoTranslate() {
   if (sample) {
     const pageLang = detectPageLanguage(sample);
     if (pageLang && pageLang === targetLang) {
-      showNotification(`页面已为${targetLang}，跳过自动翻译`, 'info');
+      showNotification(__('notifAlreadyTargetLang').replace('{targetLang}', targetLang), 'info');
       return;
     }
   }
@@ -528,8 +528,8 @@ function showAutoTranslateBanner() {
     <div class="ai-translator-banner-content">
       <span class="ai-translator-banner-text">${__('notifBannerText')}</span>
       <div class="ai-translator-banner-actions">
-        <button class="ai-translator-banner-btn ai-translator-banner-btn--primary" data-action="translate">翻译</button>
-        <button class="ai-translator-banner-btn ai-translator-banner-btn--outline" data-action="cancel">取消</button>
+        <button class="ai-translator-banner-btn ai-translator-banner-btn--primary" data-action="translate">${__('btnTranslate')}</button>
+        <button class="ai-translator-banner-btn ai-translator-banner-btn--outline" data-action="cancel">${__('btnCancel')}</button>
       </div>
     </div>
   `;
@@ -575,10 +575,10 @@ function startBlockSelection() {
   blockToolbar = document.createElement('div');
   blockToolbar.className = 'ai-translator-block-toolbar';
   blockToolbar.innerHTML = `
-    <span class="ai-translator-block-toolbar-hint">点击选择块 · 方向键调整范围 · Enter 确认</span>
+    <span class="ai-translator-block-toolbar-hint">${__('selectBlockHint')}</span>
     <div class="ai-translator-block-toolbar-actions">
-      <button class="ai-translator-block-btn" data-action="translate">翻译</button>
-      <button class="ai-translator-block-btn ai-translator-block-btn--cancel" data-action="cancel">取消</button>
+      <button class="ai-translator-block-btn" data-action="translate">${__('btnTranslate')}</button>
+      <button class="ai-translator-block-btn ai-translator-block-btn--cancel" data-action="cancel">${__('btnCancel')}</button>
     </div>
   `;
   blockToolbar.querySelector('[data-action="translate"]').addEventListener('click', confirmBlockTranslation);
@@ -624,21 +624,19 @@ function textNodesToSegments(textNodes) {
 
 async function translateSegments(segments) {
   const settings = await getSettings();
-  if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); return; }
+  if (!settings.apiKey) { showNotification(__('notifConfigApiKey'), 'error'); return; }
 
   const total = segments.length;
   if (total === 0) {     showNotification(__('notifNoText'), 'info'); return; }
 
   preserveOriginalContent();
 
-  progressBar.show('正在翻译选中的文本...');
+  progressBar.show(__('translating'));
   try {
     const batchText = segments.map((s) => s.text).join('\n---SEPARATOR---\n');
-    progressBar.update(0, total, '正在翻译文本...');
-
+    progressBar.update(0, total, __('translating'));
     const translatedBatch = await translateText(batchText, settings.targetLang, settings.sourceLang, location.href);
     const results = translatedBatch.split('\n---SEPARATOR---\n');
-
     for (let idx = 0; idx < segments.length; idx++) {
       const translated = results[idx]?.trim();
       if (translated && translated !== segments[idx].text) {
@@ -646,9 +644,9 @@ async function translateSegments(segments) {
       }
     }
     saveTranslatedContent();
-    progressBar.complete('翻译完成');
+    progressBar.complete(__('progressComplete'));
   } catch (error) {
-    progressBar.error(`翻译失败: ${error.message}`);
+    progressBar.error(__('progressFailed') + ': ' + error.message);
   }
 }
 
@@ -658,7 +656,7 @@ function startSelectionMode() {
 
   selectionConfirmBtn = document.createElement('div');
   selectionConfirmBtn.className = 'ai-translator-sel-btn';
-  selectionConfirmBtn.textContent = '翻译';
+  selectionConfirmBtn.textContent = __('btnTranslate');
   selectionConfirmBtn.style.display = 'none';
   document.body.appendChild(selectionConfirmBtn);
 

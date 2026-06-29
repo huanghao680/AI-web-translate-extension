@@ -89,5 +89,11 @@
   "optionsTesting": { "message": "测试中..." },
   "testSuccess": { "message": "连接成功！响应: " },
   "testFail": { "message": "连接失败: " },
-  "exportWarning": { "message": "导出的配置文件以明文形式包含 API Key 等敏感信息。\n请妥善保管，切勿泄露给他人或上传到公开网络。\n\n是否继续导出？" }
+  "exportWarning": { "message": "导出的配置文件以明文形式包含 API Key 等敏感信息。\n请妥善保管，切勿泄露给他人或上传到公开网络。\n\n是否继续导出？" },
+  "progressPreparing": { "message": "准备中..." },
+  "progressDone": { "message": "完成" },
+  "progressComplete": { "message": "翻译完成" },
+  "progressFailed": { "message": "翻译失败" },
+  "translating": { "message": "翻译中..." },
+  "selectBlockHint": { "message": "点击选择块 · 方向键调整范围 · Enter 确认" }
 }
