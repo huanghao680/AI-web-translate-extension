@@ -28,6 +28,7 @@ function removeDocumentListeners() {
 }
 
 let _lastUrl = location.href;
+let _spaPatched = false;
 
 function invalidateTranslationState() {
   originalContent = null;
@@ -40,6 +41,9 @@ function setupSpaDetection() {
   _lastUrl = location.href;
 
   addDocumentListener('popstate', onSpaNavigate);
+
+  if (_spaPatched) return;
+  _spaPatched = true;
 
   const origPushState = history.pushState.bind(history);
   const origReplaceState = history.replaceState.bind(history);
@@ -62,6 +66,8 @@ function onSpaNavigate() {
   invalidateTranslationState();
   hideAutoTranslateBanner();
   removeDocumentListeners();
+  if (selectionTooltip) selectionTooltip.destroy();
+  if (progressBar) progressBar.destroy();
   selectionTooltip = new SelectionTooltip();
   progressBar = new TranslationProgressBar();
 
@@ -90,6 +96,8 @@ function onSpaNavigate() {
 
 async function init() {
   removeDocumentListeners();
+  if (selectionTooltip) selectionTooltip.destroy();
+  if (progressBar) progressBar.destroy();
   selectionTooltip = new SelectionTooltip();
   progressBar = new TranslationProgressBar();
 
@@ -410,9 +418,8 @@ function showNotification(message, type = 'info') {
   notification.textContent = message;
   document.body.appendChild(notification);
 
-  if (type !== 'error') {
-    setTimeout(() => notification.remove(), 3000);
-  }
+  const delay = type === 'error' ? 5000 : 3000;
+  setTimeout(() => notification.remove(), delay);
 
   return notification;
 }
@@ -545,6 +552,7 @@ function stopBlockSelection() {
   blockStack = [];
   blockHistoryIdx = -1;
   blockHoverEl = null;
+  removeDocumentListeners();
   if (blockOverlay) { blockOverlay.remove(); blockOverlay = null; }
   if (blockToolbar) { blockToolbar.remove(); blockToolbar = null; }
 }

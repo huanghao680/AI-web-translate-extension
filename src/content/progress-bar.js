@@ -2,9 +2,11 @@ class TranslationProgressBar {
   constructor() {
     this.element = null;
     this.cancelCallback = null;
+    this._timer = null;
   }
 
   show(title) {
+    this._clearTimer();
     this.destroy();
 
     const el = document.createElement('div');
@@ -55,6 +57,7 @@ class TranslationProgressBar {
 
   complete(message) {
     if (!this.element) return;
+    this._clearTimer();
     const bar = this.element.querySelector('.ai-translator-progress-bar');
     const pctEl = this.element.querySelector('.ai-translator-progress-percentage');
     const statusEl = this.element.querySelector('.ai-translator-progress-status');
@@ -72,11 +75,12 @@ class TranslationProgressBar {
     if (spinner) spinner.remove();
     if (cancelBtn) cancelBtn.remove();
 
-    setTimeout(() => this.hide(), 2000);
+    this._timer = setTimeout(() => this.hide(), 2000);
   }
 
   error(message) {
     if (!this.element) return;
+    this._clearTimer();
     const bar = this.element.querySelector('.ai-translator-progress-bar');
     const statusEl = this.element.querySelector('.ai-translator-progress-status');
     const titleEl = this.element.querySelector('.ai-translator-progress-title-text');
@@ -91,16 +95,18 @@ class TranslationProgressBar {
     if (spinner) spinner.remove();
     if (cancelBtn) cancelBtn.remove();
 
-    setTimeout(() => this.hide(), 4000);
+    this._timer = setTimeout(() => this.hide(), 4000);
   }
 
   hide() {
+    this._clearTimer();
     if (!this.element) return;
     this.element.classList.remove('ai-translator-progress--visible');
-    setTimeout(() => this.destroy(), 300);
+    this._timer = setTimeout(() => this.destroy(), 300);
   }
 
   destroy() {
+    this._clearTimer();
     if (this.element) {
       this.element.remove();
       this.element = null;
@@ -110,6 +116,13 @@ class TranslationProgressBar {
 
   setCancelCallback(fn) {
     this.cancelCallback = fn;
+  }
+
+  _clearTimer() {
+    if (this._timer !== null) {
+      clearTimeout(this._timer);
+      this._timer = null;
+    }
   }
 
   _escapeHtml(str) {

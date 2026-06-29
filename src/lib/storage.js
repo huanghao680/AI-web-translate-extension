@@ -139,6 +139,14 @@ async function importConfig(jsonText) {
   } catch {
     throw new Error('JSON 格式无效');
   }
-  if (!data || typeof data !== 'object') throw new Error('无效的配置文件');
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('无效的配置文件');
+  if (data.profiles !== undefined && !Array.isArray(data.profiles)) throw new Error('profiles 字段格式无效');
+  if (data.profiles) {
+    for (const p of data.profiles) {
+      if (typeof p.id !== 'string' || typeof p.name !== 'string' || typeof p.baseUrl !== 'string' || typeof p.apiKey !== 'string' || typeof p.model !== 'string') {
+        throw new Error(`配置 "${p.name || '未知'}" 字段不完整`);
+      }
+    }
+  }
   await STORE.set(data);
 }
