@@ -3,49 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 网页翻译</title>
+  <title data-i18n="extName">AI 网页翻译</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>AI 网页翻译</h1>
-      <span class="status-dot" id="statusDot"></span>
+      <h1 data-i18n="extName">AI 网页翻译</h1>
+      <span class="status-dot" id="statusDot" data-i18n-title="apiKeyMissing"></span>
     </div>
 
     <div class="actions">
-      <button id="translateFullPage" class="btn">
-        <span class="btn-icon">📄</span>
-        <span>整页翻译</span>
-      </button>
-
-      <button id="translateSelection" class="btn">
-        <span class="btn-icon">✂️</span>
-        <span>划选翻译</span>
-      </button>
-
-      <button id="translateBlock" class="btn">
-        <span class="btn-icon">🔲</span>
-        <span>选择块翻译</span>
-      </button>
-
-      <button id="translateSummary" class="btn">
-        <span class="btn-icon">📋</span>
-        <span>总结性翻译</span>
-      </button>
-
-      <button id="toggleTranslation" class="btn">
-        <span class="btn-icon" id="toggleIcon">↩️</span>
-        <span id="toggleLabel">恢复原文</span>
-      </button>
+      <button id="translateFullPage" class="btn"><span class="btn-icon">📄</span><span data-i18n="btnFullPage">整页翻译</span></button>
+      <button id="translateSelection" class="btn"><span class="btn-icon">✂️</span><span data-i18n="btnSelection">划选翻译</span></button>
+      <button id="translateBlock" class="btn"><span class="btn-icon">🔲</span><span data-i18n="btnBlock">选择块翻译</span></button>
+      <button id="translateSummary" class="btn"><span class="btn-icon">📋</span><span data-i18n="btnSummary">总结性翻译</span></button>
+      <button id="toggleTranslation" class="btn"><span class="btn-icon" id="toggleIcon">↩️</span><span id="toggleLabel" data-i18n="btnRestore">恢复原文</span></button>
     </div>
 
     <div class="popup-style">
       <select id="styleSelector" class="popup-style-select">
-        <option value="default">默认风格（通顺自然）</option>
-        <option value="formal">正式（书面语）</option>
-        <option value="concise">简洁（精炼简略）</option>
-        <option value="academic">学术（术语精确）</option>
+        <option value="default" data-i18n="styleDefault">默认风格（通顺自然）</option>
+        <option value="formal" data-i18n="styleFormal">正式（书面语）</option>
+        <option value="concise" data-i18n="styleConcise">简洁（精炼简略）</option>
+        <option value="academic" data-i18n="styleAcademic">学术（术语精确）</option>
       </select>
     </div>
 
@@ -54,51 +35,34 @@
     </div>
 
     <div class="settings-summary">
-      <div class="setting-item">
-        <span class="setting-label">模型</span>
-        <span class="setting-value" id="currentModel">-</span>
-      </div>
-      <div class="setting-item">
-        <span class="setting-label">目标语言</span>
-        <span class="setting-value" id="currentTargetLang">-</span>
-      </div>
+      <div class="setting-item"><span class="setting-label" data-i18n="labelModel">模型</span><span class="setting-value" id="currentModel">-</span></div>
+      <div class="setting-item"><span class="setting-label" data-i18n="labelTargetLang">目标语言</span><span class="setting-value" id="currentTargetLang">-</span></div>
     </div>
 
     <div class="token-stats">
-      <div class="token-stats-header">
-        <span>Token 统计</span>
-        <button id="resetTokenStats" class="token-stats-reset" title="清空计数器">🗑️</button>
-      </div>
-      <div class="token-stats-row"><span>上次输入</span><span id="tokenLastPrompt">-</span></div>
-      <div class="token-stats-row"><span>上次输出</span><span id="tokenLastCompletion">-</span></div>
-      <div class="token-stats-row"><span>累计输入</span><span id="tokenTotalPrompt">-</span></div>
-      <div class="token-stats-row"><span>累计输出</span><span id="tokenTotalCompletion">-</span></div>
+      <div class="token-stats-header"><span data-i18n="tokenStats">Token 统计</span><button id="resetTokenStats" class="token-stats-reset" data-i18n-title="tokenReset">🗑️</button></div>
+      <div class="token-stats-row"><span data-i18n="tokenLastInput">上次输入</span><span id="tokenLastPrompt">-</span></div>
+      <div class="token-stats-row"><span data-i18n="tokenLastOutput">上次输出</span><span id="tokenLastCompletion">-</span></div>
+      <div class="token-stats-row"><span data-i18n="tokenTotalInput">累计输入</span><span id="tokenTotalPrompt">-</span></div>
+      <div class="token-stats-row"><span data-i18n="tokenTotalOutput">累计输出</span><span id="tokenTotalCompletion">-</span></div>
     </div>
 
     <div class="popup-toggles">
-      <label class="popup-toggle">
-        <span>翻译提示</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="popupAutoTranslate" />
-          <span class="toggle-slider"></span>
-        </label>
+      <label class="popup-toggle"><span data-i18n="labelTranslatePrompt">翻译提示</span>
+        <label class="toggle-switch"><input type="checkbox" id="popupAutoTranslate" /><span class="toggle-slider"></span></label>
       </label>
     </div>
 
     <div class="error-log-section" id="errorLogSection" style="display:none;">
-      <div class="error-log-header" id="errorLogToggle">
-        <span>⚠️ 错误日志 (<span id="errorCount">0</span>)</span>
-        <span class="error-log-arrow">▸</span>
-      </div>
+      <div class="error-log-header" id="errorLogToggle"><span>⚠️ <span data-i18n="errLogTitle">错误日志</span> (<span id="errorCount">0</span>)</span><span class="error-log-arrow">▸</span></div>
       <div class="error-log-body" id="errorLogBody" style="display:none;"></div>
     </div>
 
-    <div class="footer">
-      <a href="#" id="openOptions" class="link">设置</a>
-    </div>
+    <div class="footer"><a href="#" id="openOptions" class="link" data-i18n="btnSettings">设置</a></div>
   </div>
 
   <script src="../lib/storage.js"></script>
+  <script src="../lib/i18n.js"></script>
   <script src="../lib/error-log.js"></script>
   <script src="../lib/token-usage.js"></script>
   <script src="popup.js"></script>

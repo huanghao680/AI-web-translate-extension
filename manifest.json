@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "AI 网页翻译",
+  "name": "__MSG_extName__",
+  "default_locale": "zh_CN",
   "version": "1.0.0",
-  "description": "通过 AI 大语言模型 API 实现整页翻译、部分翻译和选词翻译",
+  "description": "__MSG_extDescription__",
   "permissions": [
     "storage",
     "activeTab",
@@ -20,6 +21,7 @@
       "matches": ["<all_urls>"],
       "js": [
         "src/lib/storage.js",
+        "src/lib/i18n.js",
         "src/lib/error-log.js",
         "src/lib/token-usage.js",
         "src/lib/api-client.js",

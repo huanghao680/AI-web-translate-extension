@@ -1,9 +1,10 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  applyI18n();
+
   const settings = await chrome.storage.local.get({
     targetLang: '中文',
     apiKey: '',
     autoTranslate: false,
-    autoTranslateWithoutConfirm: false,
     translationStyle: 'default',
     profiles: [],
     activeProfileId: '',
@@ -15,10 +16,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusDot = document.getElementById('statusDot');
   if (settings.apiKey) {
     statusDot.className = 'status-dot status-dot--connected';
-    statusDot.title = '已配置 API Key';
+    statusDot.title = __('apiKeyConfigured');
   } else {
     statusDot.className = 'status-dot status-dot--error';
-    statusDot.title = '未配置 API Key';
+    statusDot.title = __('apiKeyMissing');
   }
 
   document.getElementById('popupAutoTranslate').checked = settings.autoTranslate;
@@ -62,30 +63,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateAllButtons(pageState);
 
   document.getElementById('translateFullPage').addEventListener('click', async () => {
-    if (!tab || !tab.id) { showPopupNotification('未找到活动标签页'); return; }
+    if (!tab || !tab.id) { showPopupNotification(__('notifConfigApiKey')); return; }
     try { await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_FULL_PAGE' }); }
-    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
+    catch { showPopupNotification(__('notifConfigApiKey')); }
     window.close();
   });
 
   document.getElementById('translateSelection').addEventListener('click', async () => {
     if (!tab || !tab.id) return;
     try { await chrome.tabs.sendMessage(tab.id, { type: 'START_SELECTION_MODE' }); }
-    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
+    catch { showPopupNotification(__('notifConfigApiKey')); }
     window.close();
   });
 
   document.getElementById('translateBlock').addEventListener('click', async () => {
     if (!tab || !tab.id) return;
     try { await chrome.tabs.sendMessage(tab.id, { type: 'START_BLOCK_SELECTION' }); }
-    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
+    catch { showPopupNotification(__('notifConfigApiKey')); }
     window.close();
   });
 
   document.getElementById('translateSummary').addEventListener('click', async () => {
     if (!tab || !tab.id) return;
     try { await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_SUMMARY' }); }
-    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
+    catch { showPopupNotification(__('notifConfigApiKey')); }
     window.close();
   });
 
@@ -94,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     pageState.displayMode = pageState.displayMode === 'translated' ? 'original' : 'translated';
     updateAllButtons(pageState);
     try { await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_TRANSLATION' }); }
-    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
+    catch { showPopupNotification(__('notifConfigApiKey')); }
     window.close();
   });
 
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ${l.responseBody ? `<div class="error-log-entry-detail">响应: ${escHtml(l.responseBody.slice(0, 300))}</div>` : ''}
         ${l.requestBody ? `<div class="error-log-entry-detail">请求: ${escHtml(l.requestBody.slice(0, 300))}</div>` : ''}
       </div>
-    `).join('') + '<button class="error-log-clear" id="clearErrorLog">清除所有日志</button>';
+    `).join('') + '<button class="error-log-clear" id="clearErrorLog">' + __('errLogClear') + '</button>';
 
     document.getElementById('clearErrorLog').addEventListener('click', async () => {
       await ErrorLog.clear();
@@ -173,15 +174,15 @@ function updateAllButtons(state) {
   if (!state.translated) {
     toggle.className = 'btn btn-disabled';
     toggleIcon.textContent = '↩️';
-    toggleLabel.textContent = '恢复原文';
+    toggleLabel.textContent = __('btnRestore');
   } else if (state.displayMode === 'translated') {
     toggle.className = 'btn btn-active';
     toggleIcon.textContent = '🔄';
-    toggleLabel.textContent = '切换原文';
+    toggleLabel.textContent = __('btnSwitchOriginal');
   } else {
     toggle.className = 'btn btn-active';
     toggleIcon.textContent = '🔄';
-    toggleLabel.textContent = '切换译文';
+    toggleLabel.textContent = __('btnSwitchTranslation');
   }
 }
 

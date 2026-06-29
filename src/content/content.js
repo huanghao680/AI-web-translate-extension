@@ -255,27 +255,26 @@ function toggleTranslation() {
     document.body.innerHTML = originalContent;
     displayMode = 'original';
     init();
-    showNotification('已切换为原文', 'info');
-    return;
+    showNotification(__('notifSwitchedOriginal'), 'info');
   }
   if (displayMode === 'original' && translatedContent) {
     document.body.innerHTML = translatedContent;
     displayMode = 'translated';
     init();
-    showNotification('已切换为译文', 'info');
+    showNotification(__('notifSwitchedTranslation'), 'info');
   }
 }
 
 async function translateFullPage() {
   if (isTranslating) {
-    showNotification('正在翻译中，请稍候...', 'info');
+    showNotification(__('notifTranslating'), 'info');
     return;
   }
   isTranslating = true;
 
   const settings = await getSettings();
   if (!settings.apiKey) {
-    showNotification('请先在设置中配置 API Key', 'error');
+    showNotification(__('notifConfigApiKey'), 'error');
     isTranslating = false;
     return;
   }
@@ -411,7 +410,7 @@ async function handleSummaryTranslation() {
 async function translateSelectedElement(element) {
   const settings = await getSettings();
   if (!settings.apiKey) {
-    showNotification('请先在设置中配置 API Key', 'error');
+    showNotification(__('notifConfigApiKey'), 'error');
     return;
   }
 
@@ -423,7 +422,7 @@ async function translateSelectedElement(element) {
 
   const total = segments.length;
   if (total === 0) {
-    showNotification('选中区域没有可翻译的文本', 'info');
+    showNotification(__('notifNoText'), 'info');
     return;
   }
 
@@ -527,7 +526,7 @@ function showAutoTranslateBanner() {
   banner.className = 'ai-translator-banner';
   banner.innerHTML = `
     <div class="ai-translator-banner-content">
-      <span class="ai-translator-banner-text">此页面可以翻译为目标语言，是否翻译？</span>
+      <span class="ai-translator-banner-text">${__('notifBannerText')}</span>
       <div class="ai-translator-banner-actions">
         <button class="ai-translator-banner-btn ai-translator-banner-btn--primary" data-action="translate">翻译</button>
         <button class="ai-translator-banner-btn ai-translator-banner-btn--outline" data-action="cancel">取消</button>
@@ -590,7 +589,7 @@ function startBlockSelection() {
   addDocumentListener('click', onBlockClick, true);
   addDocumentListener('keydown', onBlockKeydown);
 
-  showNotification('点击选择一个内容块，上下方向键调整范围', 'info');
+  showNotification(__('notifBlockHint'), 'info');
 }
 
 function stopBlockSelection() {
@@ -628,7 +627,7 @@ async function translateSegments(segments) {
   if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); return; }
 
   const total = segments.length;
-  if (total === 0) { showNotification('没有可翻译的文本', 'info'); return; }
+  if (total === 0) {     showNotification(__('notifNoText'), 'info'); return; }
 
   preserveOriginalContent();
 
@@ -668,7 +667,7 @@ function startSelectionMode() {
   addDocumentListener('mouseup', onSelectionMouseup);
   addDocumentListener('keydown', onSelectionKeydown);
 
-  showNotification('在页面上选中文本，然后点击弹出的"翻译"按钮', 'info');
+  showNotification(__('notifSelectText'), 'info');
 }
 
 function stopSelectionMode() {
@@ -693,7 +692,7 @@ function onSelectionMouseup(e) {
 
 function onSelectionKeydown(e) {
   if (!selectionModeActive) return;
-  if (e.key === 'Escape') { stopSelectionMode(); showNotification('已取消选中翻译', 'info'); }
+  if (e.key === 'Escape') { stopSelectionMode(); showNotification(__('notifSelectionCancelled'), 'info'); }
 }
 
 function onSelectionConfirm() {
@@ -712,7 +711,7 @@ function onSelectionConfirm() {
   while ((n = walker.nextNode())) textNodes.push(n);
 
   stopSelectionMode();
-  if (textNodes.length === 0) { showNotification('没有可翻译的文本', 'info'); return; }
+  if (textNodes.length === 0) {     showNotification(__('notifNoText'), 'info'); return; }
 
   const segments = textNodesToSegments(textNodes);
   translateSegments(segments);
@@ -754,7 +753,7 @@ function onBlockClick(e) {
 
 function onBlockKeydown(e) {
   if (!blockSelectActive) return;
-  if (e.key === 'Escape') { stopBlockSelection(); showNotification('已取消块选择', 'info'); return; }
+  if (e.key === 'Escape') { stopBlockSelection(); showNotification(__('notifBlockCancelled'), 'info'); return; }
   if (e.key === 'Enter') { confirmBlockTranslation(); return; }
   if (!blockAnchor) return;
   if (e.key === 'ArrowUp' && blockHistoryIdx > 0) {
