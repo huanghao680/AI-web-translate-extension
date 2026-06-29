@@ -293,6 +293,7 @@ async function translateFullPage() {
     progressBar.hide();
   });
 
+  TokenUsage.startSession();
   try {
     let segments;
     if (settings.enableContentOptimization) {
@@ -353,6 +354,7 @@ async function translateFullPage() {
     progressBar.error(`翻译失败: ${error.message}`);
   } finally {
     isTranslating = false;
+    TokenUsage.endSession();
   }
 }
 
@@ -382,6 +384,7 @@ async function handleSummaryTranslation() {
   if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); isTranslating = false; return; }
 
   progressBar.show('正在总结并翻译...');
+  TokenUsage.startSession();
   try {
     const segments = settings.enableContentOptimization
       ? (getContentSegments()?.segments || getPageSegments())
@@ -401,6 +404,7 @@ async function handleSummaryTranslation() {
     progressBar.error(`总结性翻译失败: ${error.message}`);
   } finally {
     isTranslating = false;
+    TokenUsage.endSession();
   }
 }
 
