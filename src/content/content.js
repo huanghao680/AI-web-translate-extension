@@ -519,7 +519,7 @@ function startBlockSelection() {
   blockToolbar = document.createElement('div');
   blockToolbar.className = 'ai-translator-block-toolbar';
   blockToolbar.innerHTML = `
-    <span class="ai-translator-block-toolbar-hint">点击选择块 · 滚轮调整范围 · Enter 确认</span>
+    <span class="ai-translator-block-toolbar-hint">点击选择块 · 方向键调整范围 · Enter 确认</span>
     <div class="ai-translator-block-toolbar-actions">
       <button class="ai-translator-block-btn" data-action="translate">翻译</button>
       <button class="ai-translator-block-btn ai-translator-block-btn--cancel" data-action="cancel">取消</button>
@@ -531,10 +531,9 @@ function startBlockSelection() {
 
   addDocumentListener('mouseover', onBlockHover);
   addDocumentListener('click', onBlockClick, true);
-  addDocumentListener('wheel', onBlockWheel, { passive: false });
   addDocumentListener('keydown', onBlockKeydown);
 
-  showNotification('点击选择一个内容块，滚轮调整范围', 'info');
+  showNotification('点击选择一个内容块，上下方向键调整范围', 'info');
 }
 
 function stopBlockSelection() {
@@ -582,24 +581,22 @@ function onBlockClick(e) {
   }
 }
 
-function onBlockWheel(e) {
-  if (!blockSelectActive || !blockAnchor) return;
-  e.preventDefault();
-
-  if (e.deltaY < 0 && blockHistoryIdx > 0) {
-    blockHistoryIdx--;
-    blockCurrent = blockStack[blockHistoryIdx];
-  } else if (e.deltaY > 0 && blockHistoryIdx < blockStack.length - 1) {
-    blockHistoryIdx++;
-    blockCurrent = blockStack[blockHistoryIdx];
-  }
-  updateBlockUI(blockCurrent);
-}
-
 function onBlockKeydown(e) {
   if (!blockSelectActive) return;
-  if (e.key === 'Escape') { stopBlockSelection(); showNotification('已取消块选择', 'info'); }
-  if (e.key === 'Enter') { confirmBlockTranslation(); }
+  if (e.key === 'Escape') { stopBlockSelection(); showNotification('已取消块选择', 'info'); return; }
+  if (e.key === 'Enter') { confirmBlockTranslation(); return; }
+  if (!blockAnchor) return;
+  if (e.key === 'ArrowUp' && blockHistoryIdx > 0) {
+    e.preventDefault();
+    blockHistoryIdx--;
+    blockCurrent = blockStack[blockHistoryIdx];
+    updateBlockUI(blockCurrent);
+  } else if (e.key === 'ArrowDown' && blockHistoryIdx < blockStack.length - 1) {
+    e.preventDefault();
+    blockHistoryIdx++;
+    blockCurrent = blockStack[blockHistoryIdx];
+    updateBlockUI(blockCurrent);
+  }
 }
 
 function updateBlockUI(el) {
