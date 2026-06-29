@@ -88,7 +88,7 @@ async function migrateOnce() {
 
 async function getProfiles() {
   const { profiles, activeProfileId } = await STORE.get({ profiles: [], activeProfileId: '' });
-  return { profiles: profiles || [], activeProfileId: activeProfileId || '' };
+  return { profiles: Array.isArray(profiles) ? profiles : [], activeProfileId: activeProfileId || '' };
 }
 
 function ensureProfileDefaults(p) {
@@ -97,7 +97,7 @@ function ensureProfileDefaults(p) {
 }
 
 async function saveProfiles(profiles, activeProfileId) {
-  profiles = (profiles || []).map(ensureProfileDefaults);
+  profiles = (Array.isArray(profiles) ? profiles : []).map(ensureProfileDefaults);
   await STORE.set({ profiles, activeProfileId });
   const active = profiles.find((p) => p.id === activeProfileId);
   if (active) {

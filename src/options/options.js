@@ -28,11 +28,12 @@ async function refreshProfileList() {
 
 function renderProfileList(profiles, activeProfileId) {
   const list = document.getElementById('profileList');
-  if (!profiles || profiles.length === 0) {
+  const arr = Array.isArray(profiles) ? profiles : [];
+  if (arr.length === 0) {
     list.innerHTML = '<div class="profile-empty">暂无配置，点击下方按钮新建</div>';
     return;
   }
-  list.innerHTML = profiles.map((p) => `
+  list.innerHTML = arr.map((p) => `
     <div class="profile-item ${p.id === activeProfileId ? 'profile-item--active' : ''}" data-id="${p.id}">
       <div class="profile-item-info">
         <span class="profile-item-name">${escHtml(p.name)}</span>
