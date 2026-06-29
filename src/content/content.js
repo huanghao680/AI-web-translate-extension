@@ -12,6 +12,8 @@ let blockStack = [];
 let blockOverlay = null;
 let blockToolbar = null;
 let blockHoverEl = null;
+let selectionModeActive = false;
+let selectionConfirmBtn = null;
 
 const _listeners = [];
 
@@ -557,6 +559,67 @@ function stopBlockSelection() {
   if (blockToolbar) { blockToolbar.remove(); blockToolbar = null; }
 }
 
+function startSelectionMode() {
+  if (selectionModeActive) return;
+  selectionModeActive = true;
+
+  selectionConfirmBtn = document.createElement('div');
+  selectionConfirmBtn.className = 'ai-translator-sel-btn';
+  selectionConfirmBtn.textContent = '翻译';
+  selectionConfirmBtn.style.display = 'none';
+  document.body.appendChild(selectionConfirmBtn);
+
+  selectionConfirmBtn.addEventListener('click', onSelectionConfirm);
+
+  addDocumentListener('mouseup', onSelectionMouseup);
+  addDocumentListener('keydown', onSelectionKeydown);
+
+  showNotification('选中文本后点击出现的"翻译"按钮', 'info');
+}
+
+function stopSelectionMode() {
+  selectionModeActive = false;
+  if (selectionConfirmBtn) { selectionConfirmBtn.remove(); selectionConfirmBtn = null; }
+}
+
+function onSelectionMouseup(e) {
+  if (!selectionModeActive) return;
+  setTimeout(() => {
+    const text = window.getSelection().toString().trim();
+    if (text && selectionConfirmBtn) {
+      const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
+      selectionConfirmBtn.style.display = 'block';
+      selectionConfirmBtn.style.top = (rect.bottom + 6) + 'px';
+      selectionConfirmBtn.style.left = Math.max(4, rect.left) + 'px';
+    } else if (selectionConfirmBtn) {
+      selectionConfirmBtn.style.display = 'none';
+    }
+  }, 10);
+}
+
+function onSelectionKeydown(e) {
+  if (!selectionModeActive) return;
+  if (e.key === 'Escape') { stopSelectionMode(); showNotification('已取消选中翻译', 'info'); }
+}
+
+function onSelectionConfirm() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount || !sel.toString().trim()) return;
+  const range = sel.getRangeAt(0);
+  let container = range.commonAncestorContainer;
+  if (container.nodeType === Node.TEXT_NODE) container = container.parentElement;
+  const blocks = new Set(['P', 'DIV', 'SECTION', 'ARTICLE', 'LI', 'BLOCKQUOTE', 'TD', 'TH', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'FIGURE', 'FIGCAPTION', 'ASIDE', 'MAIN', 'HEADER', 'FOOTER']);
+  while (container && container !== document.body && !blocks.has(container.tagName)) {
+    container = container.parentElement;
+  }
+  stopSelectionMode();
+  if (container && container !== document.body) {
+    translateSelectedElement(container);
+  } else {
+    showNotification('无法确定选中区域的范围', 'error');
+  }
+}
+
 function onBlockHover(e) {
   if (!blockSelectActive) return;
   const el = e.target.closest('p, h1, h2, h3, h4, h5, h6, li, div, section, article, blockquote, pre, figure, figcaption, td, th');
@@ -669,12 +732,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'STOP_BLOCK_SELECTION':
       stopBlockSelection();
       break;
+    case 'START_SELECTION_MODE':
+      startSelectionMode();
+      break;
+    case 'STOP_SELECTION_MODE':
+      stopSelectionMode();
+      break;
     case 'GET_STATE':
       getSettings().then((settings) => {
         sendResponse({
           translated: translatedContent !== null,
           displayMode: displayMode,
           blockSelectActive: blockSelectActive,
+          selectionModeActive: selectionModeActive,
           autoTranslate: settings.autoTranslate,
           autoTranslateWithoutConfirm: settings.autoTranslateWithoutConfirm,
         });

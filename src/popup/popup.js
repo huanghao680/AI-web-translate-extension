@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const pageState = { translated: false, displayMode: 'original', blockSelectActive: false };
+  const pageState = { translated: false, displayMode: 'original', blockSelectActive: false, selectionModeActive: false };
 
   if (tab && tab.id) {
     try {
@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       pageState.translated = !!state.translated;
       pageState.displayMode = state.displayMode || 'original';
       pageState.blockSelectActive = !!state.blockSelectActive;
+      pageState.selectionModeActive = !!state.selectionModeActive;
     } catch {
       // content script not reachable
     }
@@ -70,7 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('translateSelection').addEventListener('click', async () => {
     if (!tab || !tab.id) return;
-    try { await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_SELECTION' }); }
+    try { await chrome.tabs.sendMessage(tab.id, { type: 'START_SELECTION_MODE' }); }
     catch { showPopupNotification('无法连接页面，请刷新后重试'); }
     window.close();
   });
@@ -156,7 +157,7 @@ function updateAllButtons(state) {
   const toggleLabel = document.getElementById('toggleLabel');
 
   fullPage.className = 'btn ' + (state.translated ? 'btn-secondary' : 'btn-primary');
-  selection.className = 'btn btn-secondary';
+  selection.className = 'btn ' + (state.selectionModeActive ? 'btn-primary' : 'btn-secondary');
   block.className = 'btn ' + (state.blockSelectActive ? 'btn-primary' : 'btn-secondary');
 
   if (!state.translated) {
