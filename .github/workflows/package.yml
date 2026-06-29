@@ -1,0 +1,55 @@
+name: Package Extension
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CRX_KEY: ${{ secrets.CRX_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Create extension zip
+        run: |
+          mkdir -p dist
+          zip -r dist/extension.zip . \
+            -x ".git/*" ".github/*" ".playwright-mcp/*" ".gitignore" "package.json"
+          echo "--- zip contents ---"
+          unzip -l dist/extension.zip | head -30
+
+      - name: Sign CRX
+        if: github.ref_type == 'tag'
+        run: |
+          if [ -z "$CRX_KEY" ]; then
+            echo "CRX_PRIVATE_KEY secret not set, skipping CRX signing"
+            exit 0
+          fi
+          npm install -g crx3
+          echo "$CRX_KEY" > key.pem
+          crx3 dist/extension.zip -o dist/extension.crx -k key.pem
+          echo "CRX signed:"
+          ls -lh dist/extension.crx
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-web-translator
+          path: dist/*
+
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
