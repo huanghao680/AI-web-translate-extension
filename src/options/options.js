@@ -268,7 +268,10 @@ document.getElementById('testBtn').addEventListener('click', async () => {
   finally { btn.disabled = false; btn.textContent = '测试连接'; }
 });
 
-document.getElementById('exportBtn').addEventListener('click', exportConfig);
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!confirm('导出的配置文件以明文形式包含 API Key 等敏感信息。\n请妥善保管，切勿泄露给他人或上传到公开网络。\n\n是否继续导出？')) return;
+  exportConfig();
+});
 document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('importFileInput').click(); });
 document.getElementById('importFileInput').addEventListener('change', async (e) => {
   const file = e.target.files[0]; if (!file) return;
