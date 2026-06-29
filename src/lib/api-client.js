@@ -53,8 +53,11 @@ class ApiClient {
       stream,
       temperature,
       max_tokens: maxTokens,
-    };
-    if (thinkingDisabled) body.thinking = { type: 'disabled' };
+      thinkingEnabled: !thinkingDisabled,
+    if (body.thinkingEnabled) {
+      body.thinking = { type: 'enabled' };
+    }
+    delete body.thinkingEnabled;
 
     const response = await this._request(url, body);
 
@@ -76,8 +79,11 @@ class ApiClient {
       stream: true,
       temperature,
       max_tokens: maxTokens,
-    };
-    if (thinkingDisabled) body.thinking = { type: 'disabled' };
+      thinkingEnabled: !thinkingDisabled,
+    if (body.thinkingEnabled) {
+      body.thinking = { type: 'enabled' };
+    }
+    delete body.thinkingEnabled;
 
     const response = await this._request(url, body);
 

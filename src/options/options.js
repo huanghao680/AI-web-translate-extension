@@ -260,7 +260,7 @@ document.getElementById('testBtn').addEventListener('click', async () => {
   try {
     const enableThinking = document.getElementById('enableThinking').checked;
     const body = { model: active.model, messages: [{ role: 'user', content: 'Hello' }], max_tokens: 10, stream: false };
-    if (!enableThinking) body.thinking = { type: 'disabled' };
+    if (enableThinking) body.thinking = { type: 'enabled' };
 
     const resp = await fetch(`${active.baseUrl.replace(/\/+$/, '')}/chat/completions`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${active.apiKey}` }, body: JSON.stringify(body),
