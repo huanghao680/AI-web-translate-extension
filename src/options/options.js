@@ -127,6 +127,26 @@ function escHtml(str) {
   return d.innerHTML;
 }
 
+const MODEL_MAX_TOKENS = [
+  [/^deepseek/, 384000],
+  [/^mimo/, 131072],
+  [/^gpt-4o?|^o[1-3]/, 16384],
+  [/^gpt-4-turbo/, 4096],
+  [/^gpt-3\.5/, 4096],
+  [/^claude/, 8192],
+  [/^gemini/, 8192],
+  [/^qwen/, 8192],
+  [/^glm/, 8192],
+];
+
+function guessMaxTokens(modelName) {
+  if (!modelName) return 32768;
+  for (const [regex, tokens] of MODEL_MAX_TOKENS) {
+    if (regex.test(modelName)) return tokens;
+  }
+  return 32768;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await migrateOnce();
 
@@ -168,10 +188,18 @@ document.getElementById('saveProfileBtn').addEventListener('click', saveProfile)
 document.getElementById('cancelProfileBtn').addEventListener('click', closeEditor);
 document.getElementById('deleteProfileBtn').addEventListener('click', deleteProfile);
 
+function autoFillMaxTokens() {
+  const val = getModelValue();
+  document.getElementById('profileMaxTokens').value = guessMaxTokens(val);
+}
+
 modelSelect().addEventListener('change', () => {
-  if (modelSelect().value) { modelCustom().style.display = 'none'; }
+  if (modelSelect().value) { modelCustom().style.display = 'none'; autoFillMaxTokens(); }
   else { modelCustom().style.display = 'block'; modelCustom().focus(); }
 });
+
+modelCustom().addEventListener('blur', autoFillMaxTokens);
+modelCustom().addEventListener('keydown', (e) => { if (e.key === 'Enter') autoFillMaxTokens(); });
 
 document.getElementById('refreshProfileModels').addEventListener('click', async () => {
   const baseUrl = document.getElementById('profileBaseUrl').value.trim();
@@ -189,6 +217,7 @@ document.getElementById('refreshProfileModels').addEventListener('click', async 
     select.innerHTML = '<option value="">手动输入...</option>';
     models.forEach((m) => { const o = document.createElement('option'); o.value = m; o.textContent = m; select.appendChild(o); });
     setModelValue(cur);
+    autoFillMaxTokens();
     showSaveStatus(`已获取 ${models.length} 个模型`, 'success');
   } catch (err) { showSaveStatus(`获取失败: ${err.message}`, 'error'); }
   finally { btn.textContent = '🔄'; btn.disabled = false; }
