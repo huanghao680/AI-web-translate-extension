@@ -533,7 +533,10 @@ function showAutoTranslateBanner() {
 
   banner.querySelector('[data-action="translate"]').addEventListener('click', () => {
     banner.remove();
-    translateFullPage();
+    getSettings().then((s) => {
+      if (s.autoTranslateAction === 'summary') handleSummaryTranslation();
+      else translateFullPage();
+    });
   });
 
   banner.querySelector('[data-action="cancel"]').addEventListener('click', () => {

@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     enableThinking: false,
     autoTranslate: false,
     enableContentOptimization: false,
+    autoTranslateAction: 'full',
   });
 
   document.getElementById('sourceLang').value = settings.sourceLang;
@@ -168,6 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('enableSelectionTranslation').checked = settings.enableSelectionTranslation;
   document.getElementById('enableThinking').checked = settings.enableThinking;
   document.getElementById('autoTranslate').checked = settings.autoTranslate;
+  document.getElementById('autoTranslateAction').value = settings.autoTranslateAction || 'full';
   document.getElementById('enableContentOptimization').checked = settings.enableContentOptimization;
 
   await refreshProfileList();
@@ -236,6 +238,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     enableSelectionTranslation: document.getElementById('enableSelectionTranslation').checked,
     enableThinking: document.getElementById('enableThinking').checked,
     autoTranslate: document.getElementById('autoTranslate').checked,
+    autoTranslateAction: document.getElementById('autoTranslateAction').value,
     enableContentOptimization: document.getElementById('enableContentOptimization').checked,
   };
   await chrome.storage.local.set(settings);

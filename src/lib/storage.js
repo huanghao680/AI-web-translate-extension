@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   ENABLE_SELECTION_TRANSLATION: 'enableSelectionTranslation',
   ENABLE_THINKING: 'enableThinking',
   AUTO_TRANSLATE: 'autoTranslate',
+  AUTO_TRANSLATE_ACTION: 'autoTranslateAction',
   ENABLE_CONTENT_OPTIMIZATION: 'enableContentOptimization',
   PROFILES: 'profiles',
   ACTIVE_PROFILE_ID: 'activeProfileId',
@@ -27,6 +28,7 @@ const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.ENABLE_SELECTION_TRANSLATION]: true,
   [STORAGE_KEYS.ENABLE_THINKING]: false,
   [STORAGE_KEYS.AUTO_TRANSLATE]: false,
+  [STORAGE_KEYS.AUTO_TRANSLATE_ACTION]: 'full',
   [STORAGE_KEYS.ENABLE_CONTENT_OPTIMIZATION]: false,
 };
 
