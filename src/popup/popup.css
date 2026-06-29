@@ -224,11 +224,25 @@ body {
   font-size: 12px;
 }
 .token-stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-weight: 600;
   color: #555;
   margin-bottom: 6px;
   font-size: 12px;
 }
+.token-stats-reset {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 1px 6px;
+  cursor: pointer;
+  color: #999;
+  line-height: 1.4;
+}
+.token-stats-reset:hover { background: #eee; color: #333; }
 .token-stats-row {
   display: flex;
   justify-content: space-between;
@@ -366,4 +380,6 @@ body {
 
   .toggle-slider { background: #555; }
   .toggle-slider::before { background: #ddd; }
+  .token-stats-reset { border-color: #555; color: #888; }
+  .token-stats-reset:hover { background: #333; color: #ddd; }
 }

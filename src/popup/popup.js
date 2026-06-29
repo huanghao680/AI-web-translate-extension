@@ -116,6 +116,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('tokenTotalPrompt').textContent = fmt(stats.cumulative.prompt);
   document.getElementById('tokenTotalCompletion').textContent = fmt(stats.cumulative.completion);
 
+  document.getElementById('resetTokenStats').addEventListener('click', async () => {
+    await TokenUsage.reset();
+    document.getElementById('tokenLastPrompt').textContent = '0';
+    document.getElementById('tokenLastCompletion').textContent = '0';
+    document.getElementById('tokenTotalPrompt').textContent = '0';
+    document.getElementById('tokenTotalCompletion').textContent = '0';
+  });
+
   const logs = await ErrorLog.getAll();
   if (logs.length > 0) {
     const section = document.getElementById('errorLogSection');
