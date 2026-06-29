@@ -374,7 +374,7 @@ function showSummaryPanel(content) {
   requestAnimationFrame(() => panel.classList.add('ai-translator-summary--visible'));
 }
 
-async function translateSummary() {
+async function handleSummaryTranslation() {
   const settings = await getSettings();
   if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); return; }
 
@@ -813,7 +813,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       toggleTranslation();
       break;
     case 'TRANSLATE_SUMMARY':
-      translateSummary();
+      handleSummaryTranslation();
       break;
     case 'START_BLOCK_SELECTION':
       startBlockSelection();
