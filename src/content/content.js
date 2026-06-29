@@ -800,12 +800,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function waitForPageReady(callback) {
-  if (document.readyState === 'complete') {
-    callback();
-    return;
-  }
-  window.addEventListener('load', callback, { once: true });
-  setTimeout(callback, 8000);
+  let fired = false;
+  const once = () => { if (!fired) { fired = true; callback(); } };
+  if (document.readyState === 'complete') { once(); return; }
+  window.addEventListener('load', once, { once: true });
+  setTimeout(once, 8000);
 }
 
 if (document.readyState === 'loading') {
