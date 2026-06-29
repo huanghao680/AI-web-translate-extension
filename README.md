@@ -144,15 +144,7 @@ AI网页翻译插件/
 
 ## API 兼容性
 
-该插件使用 OpenAI 兼容的 API 格式，理论上支持任何实现了 `/chat/completions` 端点的服务。
-
-| 服务 | Base URL 示例 |
-|------|--------------|
-| DeepSeek | `https://api.deepseek.com` |
-| OpenAI | `https://api.openai.com/v1` |
-| 通义千问 (Qwen) | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
-| GLM (智谱) | `https://open.bigmodel.cn/api/paas/v4` |
-| 任何兼容服务 | 自定义 |
+该插件使用 OpenAI 兼容的 API 格式，理论上支持任何实现了 `/chat/completions` 端点的服务，已适配以下模型：
 
 ### DeepSeek 推荐配置
 
@@ -162,6 +154,15 @@ AI网页翻译插件/
 | 模型 | `deepseek-v4-flash`（高性价比）或 `deepseek-v4-pro`（高质量） |
 | 上下文长度 | 1M tokens |
 | 最大输出 | 384K tokens |
+
+### MiMo（小米）推荐配置
+
+| 参数 | 推荐值 |
+|------|--------|
+| Base URL | `https://api.xiaomimimo.com/v1` |
+| 模型 | `mimo-v2.5-pro`（高质量）或 `mimo-v2.5`（均衡） |
+| 速率限制 | 100 RPM / 10M TPM（较 DeepSeek 更宽松） |
+| 认证 | 支持 `Authorization: Bearer`，与插件现有机制完全兼容 |
 
 ## 翻译策略
 

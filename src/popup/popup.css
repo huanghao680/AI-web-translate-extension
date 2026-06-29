@@ -151,6 +151,26 @@ body {
   font-weight: 500;
 }
 
+.popup-profile {
+  margin-bottom: 8px;
+}
+
+.popup-profile-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+}
+
+.popup-profile-select:focus {
+  border-color: #1976d2;
+  outline: none;
+}
+
 .footer {
   text-align: center;
 }

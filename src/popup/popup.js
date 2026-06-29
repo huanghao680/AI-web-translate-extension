@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const settings = await chrome.storage.sync.get({
-    model: 'deepseek-v4-flash',
     targetLang: '中文',
     apiKey: '',
     autoTranslate: false,
     autoTranslateWithoutConfirm: false,
+    profiles: [],
+    activeProfileId: '',
   });
 
-  document.getElementById('currentModel').textContent = settings.model;
   document.getElementById('currentTargetLang').textContent = settings.targetLang;
 
   const statusDot = document.getElementById('statusDot');
@@ -21,6 +21,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('popupAutoTranslate').checked = settings.autoTranslate;
   document.getElementById('popupAutoTranslateNoConfirm').checked = settings.autoTranslateWithoutConfirm;
+
+  const activeProfile = (settings.profiles || []).find((p) => p.id === settings.activeProfileId);
+
+  const sel = document.getElementById('profileSelector');
+  sel.innerHTML = (settings.profiles || []).map((p) =>
+    `<option value="${p.id}" ${p.id === settings.activeProfileId ? 'selected' : ''}>${escHtml(p.name)} — ${escHtml(p.model)}</option>`
+  ).join('') || '<option value="">未配置</option>';
+
+  const currentModel = document.getElementById('currentModel');
+  currentModel.textContent = activeProfile ? activeProfile.model : '-';
+
+  sel.addEventListener('change', async () => {
+    const id = sel.value;
+    if (id) {
+      await setActiveProfile(id);
+      const updated = await chrome.storage.sync.get({ profiles: [], activeProfileId: '' });
+      const p = (updated.profiles || []).find((pr) => pr.id === id);
+      currentModel.textContent = p ? p.model : '-';
+      showPopupNotification(`已切换到 ${p ? p.name : ''}`);
+    }
+  });
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const pageState = { translated: false, displayMode: 'original', blockSelectActive: false };
@@ -39,35 +60,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateAllButtons(pageState);
 
   document.getElementById('translateFullPage').addEventListener('click', async () => {
-    if (!tab || !tab.id) {
-      showPopupNotification('未找到活动标签页');
-      return;
-    }
-    try {
-      await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_FULL_PAGE' });
-    } catch {
-      showPopupNotification('无法连接页面，请刷新后重试');
-    }
+    if (!tab || !tab.id) { showPopupNotification('未找到活动标签页'); return; }
+    try { await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_FULL_PAGE' }); }
+    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
     window.close();
   });
 
   document.getElementById('translateSelection').addEventListener('click', async () => {
     if (!tab || !tab.id) return;
-    try {
-      await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_SELECTION' });
-    } catch {
-      showPopupNotification('无法连接页面，请刷新后重试');
-    }
+    try { await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_SELECTION' }); }
+    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
     window.close();
   });
 
   document.getElementById('translateBlock').addEventListener('click', async () => {
     if (!tab || !tab.id) return;
-    try {
-      await chrome.tabs.sendMessage(tab.id, { type: 'START_BLOCK_SELECTION' });
-    } catch {
-      showPopupNotification('无法连接页面，请刷新后重试');
-    }
+    try { await chrome.tabs.sendMessage(tab.id, { type: 'START_BLOCK_SELECTION' }); }
+    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
     window.close();
   });
 
@@ -75,11 +84,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!tab || !tab.id) return;
     pageState.displayMode = pageState.displayMode === 'translated' ? 'original' : 'translated';
     updateAllButtons(pageState);
-    try {
-      await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_TRANSLATION' });
-    } catch {
-      showPopupNotification('无法连接页面，请刷新后重试');
-    }
+    try { await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_TRANSLATION' }); }
+    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
     window.close();
   });
 
@@ -90,33 +96,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('popupAutoTranslateNoConfirm').checked = false;
       await chrome.storage.sync.set({ autoTranslateWithoutConfirm: false });
     }
-    if (tab && tab.id) {
-      chrome.tabs.sendMessage(tab.id, {
-        type: 'UPDATE_SETTINGS',
-        settings: { autoTranslate: enabled, autoTranslateWithoutConfirm: enabled ? document.getElementById('popupAutoTranslateNoConfirm').checked : false },
-      });
-    }
+    if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: enabled, autoTranslateWithoutConfirm: enabled ? document.getElementById('popupAutoTranslateNoConfirm').checked : false } });
   });
 
   document.getElementById('popupAutoTranslateNoConfirm').addEventListener('change', async (e) => {
     const enabled = e.target.checked;
     await chrome.storage.sync.set({ autoTranslateWithoutConfirm: enabled });
-    if (enabled) {
-      document.getElementById('popupAutoTranslate').checked = true;
-      await chrome.storage.sync.set({ autoTranslate: true });
-    }
-    if (tab && tab.id) {
-      chrome.tabs.sendMessage(tab.id, {
-        type: 'UPDATE_SETTINGS',
-        settings: { autoTranslate: true, autoTranslateWithoutConfirm: enabled },
-      });
-    }
+    if (enabled) { document.getElementById('popupAutoTranslate').checked = true; await chrome.storage.sync.set({ autoTranslate: true }); }
+    if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: true, autoTranslateWithoutConfirm: enabled } });
   });
 
-  document.getElementById('openOptions').addEventListener('click', (e) => {
-    e.preventDefault();
-    chrome.runtime.openOptionsPage();
-  });
+  document.getElementById('openOptions').addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
 });
 
 function updateAllButtons(state) {
@@ -127,16 +117,10 @@ function updateAllButtons(state) {
   const toggleIcon = document.getElementById('toggleIcon');
   const toggleLabel = document.getElementById('toggleLabel');
 
-  // 翻译整页: primary if not translated yet
   fullPage.className = 'btn ' + (state.translated ? 'btn-secondary' : 'btn-primary');
-
-  // 翻译选中: always secondary
   selection.className = 'btn btn-secondary';
-
-  // 选择块翻译: active if in block selection mode
   block.className = 'btn ' + (state.blockSelectActive ? 'btn-primary' : 'btn-secondary');
 
-  // 切换原文/译文
   if (!state.translated) {
     toggle.className = 'btn btn-disabled';
     toggleIcon.textContent = '↩️';
@@ -156,4 +140,10 @@ function showPopupNotification(msg) {
   const status = document.getElementById('statusDot');
   status.className = 'status-dot status-dot--error';
   status.title = msg;
+}
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
 }

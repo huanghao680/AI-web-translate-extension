@@ -4,6 +4,16 @@ class ApiClient {
     this.apiKey = apiKey;
   }
 
+  async listModels() {
+    const url = `${this.baseUrl.replace(/\/+$/, '')}/models`;
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${this.apiKey}` },
+    });
+    if (!response.ok) throw new Error(`获取模型列表失败 (${response.status})`);
+    const data = await response.json();
+    return (data.data || []).map((m) => m.id).sort();
+  }
+
   async chatCompletion({ model, messages, stream = false, temperature = 0.3, maxTokens = 4096, thinkingDisabled = true }) {
     const url = `${this.baseUrl.replace(/\/+$/, '')}/chat/completions`;
 
