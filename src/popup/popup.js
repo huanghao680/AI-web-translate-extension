@@ -153,6 +153,7 @@ function updateAllButtons(state) {
   fullPage.className = 'btn ' + (state.translated ? 'btn-secondary' : 'btn-primary');
   selection.className = 'btn ' + (state.selectionModeActive ? 'btn-primary' : 'btn-secondary');
   block.className = 'btn ' + (state.blockSelectActive ? 'btn-primary' : 'btn-secondary');
+  document.getElementById('translateSummary').className = 'btn btn-secondary';
 
   if (!state.translated) {
     toggle.className = 'btn btn-disabled';

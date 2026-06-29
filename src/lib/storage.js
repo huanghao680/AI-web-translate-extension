@@ -10,7 +10,6 @@ const STORAGE_KEYS = {
   ENABLE_THINKING: 'enableThinking',
   AUTO_TRANSLATE: 'autoTranslate',
   ENABLE_CONTENT_OPTIMIZATION: 'enableContentOptimization',
-  ENABLE_SUMMARY_TRANSLATION: 'enableSummaryTranslation',
   PROFILES: 'profiles',
   ACTIVE_PROFILE_ID: 'activeProfileId',
   MIGRATED: 'profilesMigrated',
@@ -29,7 +28,6 @@ const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.ENABLE_THINKING]: false,
   [STORAGE_KEYS.AUTO_TRANSLATE]: false,
   [STORAGE_KEYS.ENABLE_CONTENT_OPTIMIZATION]: false,
-  [STORAGE_KEYS.ENABLE_SUMMARY_TRANSLATION]: false,
 };
 
 const STORE = chrome.storage.local;
