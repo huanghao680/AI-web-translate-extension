@@ -157,6 +157,14 @@
         </label>
         <span class="hint">仅提取正文区域发送给 AI，减少 Token 消耗（适用于文章类页面）</span>
       </div>
+      <div class="form-group">
+        <label for="language" style="font-size:13px;color:#888;font-weight:400;">插件语言</label>
+        <select id="language">
+          <option value="auto">跟随浏览器设置</option>
+          <option value="zh_CN">中文</option>
+          <option value="en">English</option>
+        </select>
+      </div>
     </section>
 
     <div class="actions">
@@ -171,6 +179,7 @@
 
   <script src="../lib/api-client.js"></script>
   <script src="../lib/storage.js"></script>
+  <script src="../lib/i18n.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

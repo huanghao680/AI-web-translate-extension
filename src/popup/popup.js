@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  await initI18n();
   applyI18n();
 
   const settings = await chrome.storage.local.get({

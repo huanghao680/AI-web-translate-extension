@@ -151,6 +151,8 @@ function guessMaxTokens(modelName) {
 document.addEventListener('DOMContentLoaded', async () => {
   await migrateSyncToLocal();
   await migrateOnce();
+  await initI18n();
+  applyI18n();
 
   const settings = await chrome.storage.local.get({
     sourceLang: 'auto',
@@ -161,6 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     autoTranslate: false,
     enableContentOptimization: false,
     autoTranslateAction: 'full',
+    language: 'auto',
   });
 
   document.getElementById('sourceLang').value = settings.sourceLang;
@@ -171,6 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('autoTranslate').checked = settings.autoTranslate;
   document.getElementById('autoTranslateAction').value = settings.autoTranslateAction || 'full';
   document.getElementById('enableContentOptimization').checked = settings.enableContentOptimization;
+  document.getElementById('language').value = settings.language || 'auto';
 
   await refreshProfileList();
 });
@@ -240,6 +244,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     autoTranslate: document.getElementById('autoTranslate').checked,
     autoTranslateAction: document.getElementById('autoTranslateAction').value,
     enableContentOptimization: document.getElementById('enableContentOptimization').checked,
+    language: document.getElementById('language').value,
   };
   await chrome.storage.local.set(settings);
   showSaveStatus('设置已保存', 'success');
