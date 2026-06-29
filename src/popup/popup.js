@@ -4,11 +4,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     apiKey: '',
     autoTranslate: false,
     autoTranslateWithoutConfirm: false,
+    translationStyle: 'default',
     profiles: [],
     activeProfileId: '',
   });
 
   document.getElementById('currentTargetLang').textContent = settings.targetLang;
+  document.getElementById('styleSelector').value = settings.translationStyle || 'default';
 
   const statusDot = document.getElementById('statusDot');
   if (settings.apiKey) {
@@ -104,6 +106,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await chrome.storage.sync.set({ autoTranslateWithoutConfirm: enabled });
     if (enabled) { document.getElementById('popupAutoTranslate').checked = true; await chrome.storage.sync.set({ autoTranslate: true }); }
     if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: true, autoTranslateWithoutConfirm: enabled } });
+  });
+
+  document.getElementById('styleSelector').addEventListener('change', async (e) => {
+    await chrome.storage.sync.set({ translationStyle: e.target.value });
   });
 
   document.getElementById('openOptions').addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });

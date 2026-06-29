@@ -347,3 +347,23 @@ body {
 .error-log-clear:hover {
   background: #fff3e0;
 }
+
+.popup-style {
+  margin-bottom: 8px;
+}
+
+.popup-style-select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #444;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.popup-style-select:focus {
+  border-color: #1976d2;
+  outline: none;
+}

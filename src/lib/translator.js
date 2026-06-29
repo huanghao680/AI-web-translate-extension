@@ -6,117 +6,121 @@ const TRANSLATION_RULES = `翻译规则：
 5. 只返回翻译结果，不要添加任何解释或额外内容
 6. 文本段之间用 ---SEPARATOR--- 分隔，输出时必须保持这些分隔符的数量和位置与输入完全一致`;
 
-function buildSystemPrompt(pageUrl) {
+const STYLE_PROMPTS = {
+  default: '',
+  formal: '\n翻译要求：使用正式的书面语风格，措辞严谨，避免口语化表达。',
+  concise: '\n翻译要求：力求简洁精炼，在保证准确的前提下尽量缩短译文长度。',
+  academic: '\n翻译要求：学术翻译风格，术语翻译要求精确统一，句式结构完整严谨。',
+};
+
+function buildSystemPrompt(pageUrl, style) {
   let ctx = '你是一个专业的网页翻译助手。你的任务是将用户提供的文本翻译成指定的目标语言。';
   if (pageUrl) {
     try {
       const url = new URL(pageUrl);
       ctx += `\n\n当前页面信息：域名 ${url.hostname}，完整路径 ${url.pathname}。翻译时请结合该网站的主题和语境，确保专业术语准确。`;
-    } catch {
-      // ignore invalid URL
-    }
+    } catch {}
   }
+  const stylePrompt = STYLE_PROMPTS[style] || '';
+  ctx += stylePrompt;
   ctx += `\n\n${TRANSLATION_RULES}`;
   return ctx;
 }
 
 async function getApiSettings() {
-  const { enableThinking } = await getSettings();
+  const settings = await getSettings();
   const profile = await getActiveProfile();
   return {
     baseUrl: profile?.baseUrl || '',
     apiKey: profile?.apiKey || '',
     model: profile?.model || '',
-    enableThinking,
+    enableThinking: settings.enableThinking,
     maxTokens: profile?.maxTokens || 32768,
+    translationStyle: settings.translationStyle || 'default',
   };
 }
 
 async function translateText(text, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
-
-  if (!apiKey) throw new Error('请先在设置中配置 API Key');
+  const opts = await getApiSettings();
+  if (!opts.apiKey) throw new Error('请先在设置中配置 API Key');
 
   const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
-  const client = new ApiClient(baseUrl, apiKey);
+  const client = new ApiClient(opts.baseUrl, opts.apiKey);
 
   const result = await client.chatCompletion({
-    model,
+    model: opts.model,
     messages: [
-      { role: 'system', content: buildSystemPrompt(pageUrl) },
+      { role: 'system', content: buildSystemPrompt(pageUrl, opts.translationStyle) },
       { role: 'user', content: `请将以下${sourceLangText}文本翻译成${targetLang}：\n\n${text}` },
     ],
-    temperature: 0.3,
-    maxTokens,
-    thinkingDisabled: !enableThinking,
+    temperature: opts.translationStyle === 'formal' ? 0.2 : 0.3,
+    maxTokens: opts.maxTokens,
+    thinkingDisabled: !opts.enableThinking,
   });
 
   return result;
 }
 
 async function translateTextStream(text, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
-
-  if (!apiKey) throw new Error('请先在设置中配置 API Key');
+  const opts = await getApiSettings();
+  if (!opts.apiKey) throw new Error('请先在设置中配置 API Key');
 
   const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
-  const client = new ApiClient(baseUrl, apiKey);
+  const client = new ApiClient(opts.baseUrl, opts.apiKey);
 
   return client.streamChatCompletion({
-    model,
+    model: opts.model,
     messages: [
-      { role: 'system', content: buildSystemPrompt(pageUrl) },
+      { role: 'system', content: buildSystemPrompt(pageUrl, opts.translationStyle) },
       { role: 'user', content: `请将以下${sourceLangText}文本翻译成${targetLang}：\n\n${text}` },
     ],
-    temperature: 0.3,
-    maxTokens,
-    thinkingDisabled: !enableThinking,
+    temperature: opts.translationStyle === 'formal' ? 0.2 : 0.3,
+    maxTokens: opts.maxTokens,
+    thinkingDisabled: !opts.enableThinking,
   });
 }
 
 async function translatePage(htmlContent, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
-
-  if (!apiKey) throw new Error('请先在设置中配置 API Key');
+  const opts = await getApiSettings();
+  if (!opts.apiKey) throw new Error('请先在设置中配置 API Key');
 
   const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
-  const client = new ApiClient(baseUrl, apiKey);
+  const client = new ApiClient(opts.baseUrl, opts.apiKey);
 
   const result = await client.chatCompletion({
-    model,
+    model: opts.model,
     messages: [
-      { role: 'system', content: buildSystemPrompt(pageUrl) },
+      { role: 'system', content: buildSystemPrompt(pageUrl, opts.translationStyle) },
       { role: 'user', content: `请将以下${sourceLangText}网页内容完整翻译成${targetLang}。\n注意：只翻译可见文本内容，保留所有 HTML 标签和属性结构不变。\n\n${htmlContent}` },
     ],
-    temperature: 0.3,
-    maxTokens,
-    thinkingDisabled: !enableThinking,
+    temperature: opts.translationStyle === 'formal' ? 0.2 : 0.3,
+    maxTokens: opts.maxTokens,
+    thinkingDisabled: !opts.enableThinking,
   });
 
   return result;
 }
 
 async function translateWord(word, targetLang, sourceLang = 'auto', pageUrl) {
-  const { baseUrl, apiKey, model, enableThinking, maxTokens } = await getApiSettings();
-
-  if (!apiKey) throw new Error('请先在设置中配置 API Key');
+  const opts = await getApiSettings();
+  if (!opts.apiKey) throw new Error('请先在设置中配置 API Key');
 
   const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
-  const client = new ApiClient(baseUrl, apiKey);
+  const client = new ApiClient(opts.baseUrl, opts.apiKey);
 
   const systemPrompt = pageUrl
-    ? buildSystemPrompt(pageUrl)
+    ? buildSystemPrompt(pageUrl, opts.translationStyle)
     : '你是一个翻译助手，专注于单词和短语的翻译与解释。';
 
   const result = await client.chatCompletion({
-    model,
+    model: opts.model,
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: `请将以下${sourceLangText}单词/短语翻译成${targetLang}。\n如果可能，请提供：\n1. 中文释义\n2. 音标（如果是英文）\n3. 词性\n4. 例句\n\n单词/短语：${word}` },
     ],
     temperature: 0.3,
-    maxTokens: Math.min(maxTokens, 1024),
-    thinkingDisabled: !enableThinking,
+    maxTokens: Math.min(opts.maxTokens, 1024),
+    thinkingDisabled: !opts.enableThinking,
   });
 
   return result;
