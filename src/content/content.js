@@ -857,12 +857,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   sendResponse({ success: true });
 });
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+(async () => {
+  await initI18n();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+      checkAutoTranslate();
+    });
+  } else {
     init();
     checkAutoTranslate();
-  });
-} else {
-  init();
-  checkAutoTranslate();
-}
+  }
+})();
