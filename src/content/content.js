@@ -571,6 +571,8 @@ async function translateSegments(segments) {
   const total = segments.length;
   if (total === 0) { showNotification('没有可翻译的文本', 'info'); return; }
 
+  preserveOriginalContent();
+
   progressBar.show('正在翻译选中的文本...');
   try {
     const batchText = segments.map((s) => s.text).join('\n---SEPARATOR---\n');
@@ -585,6 +587,7 @@ async function translateSegments(segments) {
         applyTranslationToSegment(segments[idx], translated);
       }
     }
+    saveTranslatedContent();
     progressBar.complete('翻译完成');
   } catch (error) {
     progressBar.error(`翻译失败: ${error.message}`);
@@ -606,7 +609,7 @@ function startSelectionMode() {
   addDocumentListener('mouseup', onSelectionMouseup);
   addDocumentListener('keydown', onSelectionKeydown);
 
-  showNotification('选中文本后点击出现的"翻译"按钮', 'info');
+  showNotification('在页面上选中文本，然后点击弹出的"翻译"按钮', 'info');
 }
 
 function stopSelectionMode() {
