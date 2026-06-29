@@ -281,7 +281,7 @@ async function translateFullPage() {
   }
 
   preserveOriginalContent();
-  progressBar.show('正在翻译整页...');
+  progressBar.show('正在分析页面...');
   progressBar.setCancelCallback(() => {
     isTranslating = false;
     translatedContent = null;
@@ -294,7 +294,15 @@ async function translateFullPage() {
   });
 
   try {
-    const segments = getPageSegments();
+    let segments;
+    if (settings.enableContentOptimization) {
+      const extracted = getContentSegments();
+      if (extracted) {
+        segments = extracted.segments;
+        progressBar.show('正在翻译正文...');
+      }
+    }
+    if (!segments) segments = getPageSegments();
     const total = segments.length;
     const batchSize = 15;
     const totalBatches = Math.ceil(total / batchSize);

@@ -23,6 +23,7 @@
         "src/lib/error-log.js",
         "src/lib/api-client.js",
         "src/lib/translator.js",
+        "src/lib/content-extractor.js",
         "src/content/selection-tooltip.js",
         "src/content/progress-bar.js",
         "src/content/content.js"
