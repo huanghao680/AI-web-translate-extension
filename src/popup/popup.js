@@ -82,6 +82,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.close();
   });
 
+  document.getElementById('translateSummary').addEventListener('click', async () => {
+    if (!tab || !tab.id) return;
+    try { await chrome.tabs.sendMessage(tab.id, { type: 'TRANSLATE_SUMMARY' }); }
+    catch { showPopupNotification('无法连接页面，请刷新后重试'); }
+    window.close();
+  });
+
   document.getElementById('toggleTranslation').addEventListener('click', async () => {
     if (!tab || !tab.id) return;
     pageState.displayMode = pageState.displayMode === 'translated' ? 'original' : 'translated';

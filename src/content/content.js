@@ -356,6 +356,49 @@ async function translateFullPage() {
   }
 }
 
+function showSummaryPanel(content) {
+  const existing = document.querySelector('.ai-translator-summary');
+  if (existing) existing.remove();
+
+  const panel = document.createElement('div');
+  panel.className = 'ai-translator-summary';
+  panel.innerHTML = `
+    <div class="ai-translator-summary-header">
+      <span>📋 总结翻译</span>
+      <button class="ai-translator-summary-close">&times;</button>
+    </div>
+    <div class="ai-translator-summary-body">${content.replace(/\n/g, '<br>')}</div>
+  `;
+  panel.querySelector('.ai-translator-summary-close').addEventListener('click', () => panel.remove());
+  document.body.appendChild(panel);
+  requestAnimationFrame(() => panel.classList.add('ai-translator-summary--visible'));
+}
+
+async function translateSummary() {
+  const settings = await getSettings();
+  if (!settings.apiKey) { showNotification('请先在设置中配置 API Key', 'error'); return; }
+
+  progressBar.show('正在总结并翻译...');
+  try {
+    const segments = settings.enableContentOptimization
+      ? (getContentSegments()?.segments || getPageSegments())
+      : getPageSegments();
+    const fullText = segments.map((s) => s.text).join('\n\n');
+    progressBar.update(0, 1, '正在发送到 AI...');
+
+    const result = await translateSummary(
+      fullText,
+      settings.targetLang,
+      settings.sourceLang,
+      location.href
+    );
+    progressBar.complete('总结翻译完成');
+    showSummaryPanel(result);
+  } catch (error) {
+    progressBar.error(`总结翻译失败: ${error.message}`);
+  }
+}
+
 async function translateSelectedElement(element) {
   const settings = await getSettings();
   if (!settings.apiKey) {
@@ -769,6 +812,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'TOGGLE_TRANSLATION':
       toggleTranslation();
       break;
+    case 'TRANSLATE_SUMMARY':
+      translateSummary();
+      break;
     case 'START_BLOCK_SELECTION':
       startBlockSelection();
       break;
@@ -789,7 +835,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           blockSelectActive: blockSelectActive,
           selectionModeActive: selectionModeActive,
           autoTranslate: settings.autoTranslate,
-          autoTranslateWithoutConfirm: settings.autoTranslateWithoutConfirm,
         });
       });
       return true;

@@ -146,3 +146,35 @@ async function translateWord(word, targetLang, sourceLang = 'auto', pageUrl) {
 
   return result;
 }
+
+async function translateSummary(text, targetLang, sourceLang = 'auto', pageUrl) {
+  const opts = await getApiSettings();
+  if (!opts.apiKey) throw new Error('请先在设置中配置 API Key');
+
+  const sourceLangText = sourceLang === 'auto' ? '自动检测' : sourceLang;
+  const client = new ApiClient(opts.baseUrl, opts.apiKey);
+
+  const domainCtx = pageUrl ? buildSystemPrompt(pageUrl, opts.translationStyle) : '';
+  const summaryPrompt = `请对以下网页内容进行总结，然后将总结翻译成${targetLang}。
+
+要求：
+1. 提取核心内容和关键信息，忽略导航、广告等无关内容
+2. 保持原文的主要观点和事实
+3. 总结长度控制在原文的 30% 以内
+4. 直接输出翻译后的总结，不要输出原文`;
+
+  const systemContent = domainCtx ? `${domainCtx}\n\n${summaryPrompt}` : summaryPrompt;
+
+  const result = await client.chatCompletion({
+    model: opts.model,
+    messages: [
+      { role: 'system', content: systemContent },
+      { role: 'user', content: `网页内容：\n\n${text}` },
+    ],
+    temperature: 0.4,
+    maxTokens: opts.maxTokens,
+    thinkingDisabled: !opts.enableThinking,
+  });
+
+  return result;
+}

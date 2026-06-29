@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     enableThinking: false,
     autoTranslate: false,
     enableContentOptimization: false,
+    enableSummaryTranslation: false,
   });
 
   document.getElementById('sourceLang').value = settings.sourceLang;
@@ -169,6 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('enableThinking').checked = settings.enableThinking;
   document.getElementById('autoTranslate').checked = settings.autoTranslate;
   document.getElementById('enableContentOptimization').checked = settings.enableContentOptimization;
+  document.getElementById('enableSummaryTranslation').checked = settings.enableSummaryTranslation;
 
   await refreshProfileList();
 });
@@ -237,6 +239,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     enableThinking: document.getElementById('enableThinking').checked,
     autoTranslate: document.getElementById('autoTranslate').checked,
     enableContentOptimization: document.getElementById('enableContentOptimization').checked,
+    enableSummaryTranslation: document.getElementById('enableSummaryTranslation').checked,
   };
   await chrome.storage.local.set(settings);
   showSaveStatus('设置已保存', 'success');
