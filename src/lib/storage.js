@@ -13,6 +13,7 @@ const STORAGE_KEYS = {
   PROFILES: 'profiles',
   ACTIVE_PROFILE_ID: 'activeProfileId',
   MIGRATED: 'profilesMigrated',
+  LOCAL_MIGRATED: 'localMigrated',
 };
 
 const DEFAULT_SETTINGS = {
@@ -29,13 +30,26 @@ const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.AUTO_TRANSLATE_WITHOUT_CONFIRM]: false,
 };
 
+const STORE = chrome.storage.local;
+
+async function migrateSyncToLocal() {
+  const { localMigrated } = await STORE.get({ localMigrated: false });
+  if (localMigrated) return;
+
+  const syncData = await chrome.storage.sync.get(null);
+  if (syncData && Object.keys(syncData).length > 0) {
+    await STORE.set(syncData);
+  }
+  await STORE.set({ localMigrated: true });
+}
+
 async function getSettings() {
-  const result = await chrome.storage.sync.get(DEFAULT_SETTINGS);
+  const result = await STORE.get(DEFAULT_SETTINGS);
   return { ...DEFAULT_SETTINGS, ...result };
 }
 
 async function saveSettings(settings) {
-  await chrome.storage.sync.set(settings);
+  await STORE.set(settings);
 }
 
 async function getSetting(key) {
@@ -44,11 +58,11 @@ async function getSetting(key) {
 }
 
 async function saveSetting(key, value) {
-  await chrome.storage.sync.set({ [key]: value });
+  await STORE.set({ [key]: value });
 }
 
 async function migrateOnce() {
-  const { profilesMigrated, apiKey, baseUrl, model } = await chrome.storage.sync.get({
+  const { profilesMigrated, apiKey, baseUrl, model } = await STORE.get({
     profilesMigrated: false,
     apiKey: '',
     baseUrl: 'https://api.deepseek.com',
@@ -58,22 +72,22 @@ async function migrateOnce() {
     const defaultProfile = {
       id: 'default',
       name: '默认配置',
-      baseUrl: baseUrl,
-      apiKey: apiKey,
-      model: model,
+      baseUrl,
+      apiKey,
+      model,
     };
-    await chrome.storage.sync.set({
+    await STORE.set({
       profiles: [defaultProfile],
       activeProfileId: 'default',
       profilesMigrated: true,
     });
   } else if (!profilesMigrated) {
-    await chrome.storage.sync.set({ profilesMigrated: true });
+    await STORE.set({ profilesMigrated: true });
   }
 }
 
 async function getProfiles() {
-  const { profiles, activeProfileId } = await chrome.storage.sync.get({ profiles: [], activeProfileId: '' });
+  const { profiles, activeProfileId } = await STORE.get({ profiles: [], activeProfileId: '' });
   return { profiles: profiles || [], activeProfileId: activeProfileId || '' };
 }
 
@@ -84,10 +98,10 @@ function ensureProfileDefaults(p) {
 
 async function saveProfiles(profiles, activeProfileId) {
   profiles = (profiles || []).map(ensureProfileDefaults);
-  await chrome.storage.sync.set({ profiles, activeProfileId });
+  await STORE.set({ profiles, activeProfileId });
   const active = profiles.find((p) => p.id === activeProfileId);
   if (active) {
-    await chrome.storage.sync.set({
+    await STORE.set({
       apiKey: active.apiKey,
       baseUrl: active.baseUrl,
       model: active.model,
@@ -101,12 +115,30 @@ async function getActiveProfile() {
   return p ? ensureProfileDefaults(p) : null;
 }
 
-async function getActiveProfile() {
-  const { profiles, activeProfileId } = await getProfiles();
-  return (profiles || []).find((p) => p.id === activeProfileId) || null;
-}
-
 async function setActiveProfile(profileId) {
   const { profiles } = await getProfiles();
   await saveProfiles(profiles, profileId);
+}
+
+async function exportConfig() {
+  const all = await STORE.get(null);
+  const { errorLog, ...config } = all;
+  const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ai-translator-config-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function importConfig(jsonText) {
+  let data;
+  try {
+    data = JSON.parse(jsonText);
+  } catch {
+    throw new Error('JSON 格式无效');
+  }
+  if (!data || typeof data !== 'object') throw new Error('无效的配置文件');
+  await STORE.set(data);
 }

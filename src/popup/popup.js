@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  const settings = await chrome.storage.sync.get({
+  const settings = await chrome.storage.local.get({
     targetLang: '中文',
     apiKey: '',
     autoTranslate: false,
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const id = sel.value;
     if (id) {
       await setActiveProfile(id);
-      const updated = await chrome.storage.sync.get({ profiles: [], activeProfileId: '' });
+      const updated = await chrome.storage.local.get({ profiles: [], activeProfileId: '' });
       const p = (updated.profiles || []).find((pr) => pr.id === id);
       currentModel.textContent = p ? p.model : '-';
       showPopupNotification(`已切换到 ${p ? p.name : ''}`);
@@ -93,23 +93,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('popupAutoTranslate').addEventListener('change', async (e) => {
     const enabled = e.target.checked;
-    await chrome.storage.sync.set({ autoTranslate: enabled });
+    await chrome.storage.local.set({ autoTranslate: enabled });
     if (!enabled) {
       document.getElementById('popupAutoTranslateNoConfirm').checked = false;
-      await chrome.storage.sync.set({ autoTranslateWithoutConfirm: false });
+      await chrome.storage.local.set({ autoTranslateWithoutConfirm: false });
     }
     if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: enabled, autoTranslateWithoutConfirm: enabled ? document.getElementById('popupAutoTranslateNoConfirm').checked : false } });
   });
 
   document.getElementById('popupAutoTranslateNoConfirm').addEventListener('change', async (e) => {
     const enabled = e.target.checked;
-    await chrome.storage.sync.set({ autoTranslateWithoutConfirm: enabled });
-    if (enabled) { document.getElementById('popupAutoTranslate').checked = true; await chrome.storage.sync.set({ autoTranslate: true }); }
+    await chrome.storage.local.set({ autoTranslateWithoutConfirm: enabled });
+    if (enabled) { document.getElementById('popupAutoTranslate').checked = true; await chrome.storage.local.set({ autoTranslate: true }); }
     if (tab && tab.id) chrome.tabs.sendMessage(tab.id, { type: 'UPDATE_SETTINGS', settings: { autoTranslate: true, autoTranslateWithoutConfirm: enabled } });
   });
 
   document.getElementById('styleSelector').addEventListener('change', async (e) => {
-    await chrome.storage.sync.set({ translationStyle: e.target.value });
+    await chrome.storage.local.set({ translationStyle: e.target.value });
   });
 
   document.getElementById('openOptions').addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });

@@ -148,9 +148,10 @@ function guessMaxTokens(modelName) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  await migrateSyncToLocal();
   await migrateOnce();
 
-  const settings = await chrome.storage.sync.get({
+  const settings = await chrome.storage.local.get({
     sourceLang: 'auto',
     targetLang: '中文',
     translationStyle: 'default',
@@ -240,7 +241,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     autoTranslate: document.getElementById('autoTranslate').checked,
     autoTranslateWithoutConfirm: document.getElementById('autoTranslateWithoutConfirm').checked,
   };
-  await chrome.storage.sync.set(settings);
+  await chrome.storage.local.set(settings);
   showSaveStatus('设置已保存', 'success');
 });
 
@@ -265,6 +266,15 @@ document.getElementById('testBtn').addEventListener('click', async () => {
     showSaveStatus(`连接成功！响应: ${reply.substring(0, 50)}`, 'success');
   } catch (err) { showSaveStatus(`连接失败: ${err.message}`, 'error'); }
   finally { btn.disabled = false; btn.textContent = '测试连接'; }
+});
+
+document.getElementById('exportBtn').addEventListener('click', exportConfig);
+document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('importFileInput').click(); });
+document.getElementById('importFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try { const text = await file.text(); await importConfig(text); showSaveStatus('配置已导入，正在刷新...', 'success'); setTimeout(() => location.reload(), 1000); }
+  catch (err) { showSaveStatus(`导入失败: ${err.message}`, 'error'); }
+  e.target.value = '';
 });
 
 function showSaveStatus(message, type) {

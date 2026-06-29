@@ -155,8 +155,11 @@
     <div class="actions">
       <button id="saveBtn" class="btn btn-primary">保存设置</button>
       <button id="testBtn" class="btn btn-secondary">测试连接</button>
+      <button id="exportBtn" class="btn btn-outline">导出配置</button>
+      <button id="importBtn" class="btn btn-outline">导入配置</button>
       <span id="saveStatus" class="save-status"></span>
     </div>
+    <input type="file" id="importFileInput" accept=".json" style="display:none;" />
   </div>
 
   <script src="../lib/api-client.js"></script>
