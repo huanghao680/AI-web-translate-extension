@@ -417,3 +417,42 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+@media (prefers-color-scheme: dark) {
+  .ai-translator-tooltip { background: #2a2a2a; border-color: #444; color: #ddd; }
+  .ai-translator-tooltip-header { background: #333; border-bottom-color: #444; color: #aaa; }
+  .ai-translator-tooltip-close { color: #888; }
+  .ai-translator-tooltip-close:hover { color: #fff; }
+  .ai-translator-tooltip-loading { color: #888; }
+  .ai-translator-tooltip-error { color: #ef5350; }
+
+  .ai-translator-notification--info { background: #1565c0; }
+  .ai-translator-notification--success { background: #2e7d32; }
+  .ai-translator-notification--error { background: #c62828; }
+
+  .ai-translator-progress { background: rgba(30,30,30,0.97); border-bottom-color: #333; }
+  .ai-translator-progress-title { color: #ddd; }
+  .ai-translator-progress-percentage { color: #64b5f6; }
+  .ai-translator-progress-track { background: #333; }
+  .ai-translator-progress-status { color: #888; }
+  .ai-translator-progress-cancel { border-color: #555; color: #888; }
+  .ai-translator-progress-cancel:hover { border-color: #ef5350; color: #ef5350; background: #2a1515; }
+
+  .ai-translator-banner { background: #1565c0; }
+  .ai-translator-banner-btn--primary { background: #fff; color: #1565c0; }
+  .ai-translator-banner-btn--primary:hover { background: #e3f2fd; }
+
+  .ai-translator-block-overlay { background: rgba(100,181,246,0.12); border-color: #64b5f6; }
+  .ai-translator-block-toolbar { background: #2a2a2a; border-color: #444; }
+  .ai-translator-block-toolbar-hint { color: #888; }
+  .ai-translator-block-btn { background: #1565c0; border-color: #1565c0; color: #fff; }
+  .ai-translator-block-btn:hover { background: #1976d2; }
+  .ai-translator-block-btn--cancel { background: #333; color: #aaa; border-color: #555; }
+  .ai-translator-block-btn--cancel:hover { background: #3a3a3a; color: #ddd; }
+
+  .ai-translator-sel-btn { background: #1565c0; }
+  .ai-translator-sel-btn:hover { background: #1976d2; }
+
+  .ai-translator-summary { background: #2a2a2a; border-color: #444; color: #ddd; }
+  .ai-translator-summary-header { background: #1565c0; }
+}
