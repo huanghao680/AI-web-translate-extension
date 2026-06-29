@@ -12,6 +12,7 @@ const STORAGE_KEYS = {
   AUTO_TRANSLATE_WITHOUT_CONFIRM: 'autoTranslateWithoutConfirm',
   PROFILES: 'profiles',
   ACTIVE_PROFILE_ID: 'activeProfileId',
+  MIGRATED: 'profilesMigrated',
 };
 
 const DEFAULT_SETTINGS = {
@@ -26,19 +27,14 @@ const DEFAULT_SETTINGS = {
   [STORAGE_KEYS.ENABLE_THINKING]: false,
   [STORAGE_KEYS.AUTO_TRANSLATE]: false,
   [STORAGE_KEYS.AUTO_TRANSLATE_WITHOUT_CONFIRM]: false,
-  [STORAGE_KEYS.PROFILES]: [],
-  [STORAGE_KEYS.ACTIVE_PROFILE_ID]: '',
 };
 
 async function getSettings() {
   const result = await chrome.storage.sync.get(DEFAULT_SETTINGS);
-  const settings = { ...DEFAULT_SETTINGS, ...result };
-  migrateProfiles(settings);
-  return settings;
+  return { ...DEFAULT_SETTINGS, ...result };
 }
 
 async function saveSettings(settings) {
-  syncActiveProfile(settings);
   await chrome.storage.sync.set(settings);
 }
 
@@ -51,47 +47,54 @@ async function saveSetting(key, value) {
   await chrome.storage.sync.set({ [key]: value });
 }
 
-function migrateProfiles(settings) {
-  if (!settings.profiles || settings.profiles.length === 0) {
-    if (settings.apiKey) {
-      settings.profiles = [{
-        id: 'default',
-        name: '默认配置',
-        baseUrl: settings.baseUrl,
-        apiKey: settings.apiKey,
-        model: settings.model,
-      }];
-      settings.activeProfileId = 'default';
-    }
+async function migrateOnce() {
+  const { profilesMigrated, apiKey, baseUrl, model } = await chrome.storage.sync.get({
+    profilesMigrated: false,
+    apiKey: '',
+    baseUrl: 'https://api.deepseek.com',
+    model: 'deepseek-v4-flash',
+  });
+  if (!profilesMigrated && apiKey) {
+    const defaultProfile = {
+      id: 'default',
+      name: '默认配置',
+      baseUrl: baseUrl,
+      apiKey: apiKey,
+      model: model,
+    };
+    await chrome.storage.sync.set({
+      profiles: [defaultProfile],
+      activeProfileId: 'default',
+      profilesMigrated: true,
+    });
+  } else if (!profilesMigrated) {
+    await chrome.storage.sync.set({ profilesMigrated: true });
   }
 }
 
-function syncActiveProfile(settings) {
-  const { profiles, activeProfileId } = settings;
-  if (!profiles || profiles.length === 0 || !activeProfileId) return;
-  const profile = profiles.find((p) => p.id === activeProfileId);
-  if (profile) {
-    settings.baseUrl = profile.baseUrl;
-    settings.apiKey = profile.apiKey;
-    settings.model = profile.model;
+async function getProfiles() {
+  const { profiles, activeProfileId } = await chrome.storage.sync.get({ profiles: [], activeProfileId: '' });
+  return { profiles: profiles || [], activeProfileId: activeProfileId || '' };
+}
+
+async function saveProfiles(profiles, activeProfileId) {
+  await chrome.storage.sync.set({ profiles, activeProfileId });
+  const active = (profiles || []).find((p) => p.id === activeProfileId);
+  if (active) {
+    await chrome.storage.sync.set({
+      apiKey: active.apiKey,
+      baseUrl: active.baseUrl,
+      model: active.model,
+    });
   }
 }
 
 async function getActiveProfile() {
-  const settings = await getSettings();
-  const { profiles, activeProfileId } = settings;
+  const { profiles, activeProfileId } = await getProfiles();
   return (profiles || []).find((p) => p.id === activeProfileId) || null;
 }
 
 async function setActiveProfile(profileId) {
-  const settings = await getSettings();
-  settings.activeProfileId = profileId;
-  await saveSettings(settings);
-}
-
-async function saveProfiles(profiles, activeProfileId) {
-  const settings = await getSettings();
-  settings.profiles = profiles;
-  settings.activeProfileId = activeProfileId;
-  await saveSettings(settings);
+  const { profiles } = await getProfiles();
+  await saveProfiles(profiles, profileId);
 }

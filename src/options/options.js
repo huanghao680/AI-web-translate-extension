@@ -21,14 +21,14 @@ function setModelValue(val) {
   modelCustom().value = val;
 }
 
-async function loadProfiles() {
-  const { profiles, activeProfileId } = await chrome.storage.sync.get({ profiles: [], activeProfileId: '' });
-  return { profiles, activeProfileId };
+async function refreshProfileList() {
+  const { profiles, activeProfileId } = await getProfiles();
+  renderProfileList(profiles, activeProfileId);
 }
 
 function renderProfileList(profiles, activeProfileId) {
   const list = document.getElementById('profileList');
-  if (profiles.length === 0) {
+  if (!profiles || profiles.length === 0) {
     list.innerHTML = '<div class="profile-empty">暂无配置，点击下方按钮新建</div>';
     return;
   }
@@ -46,18 +46,18 @@ function renderProfileList(profiles, activeProfileId) {
     el.addEventListener('click', async () => {
       const id = el.dataset.id;
       if (id === activeProfileId) {
-        editProfile(id);
+        openEditor(id);
       } else {
         await setActiveProfile(id);
-        showSaveStatus(`已切换到配置：${profiles.find((p) => p.id === id)?.name || ''}`, 'success');
-        await renderProfileList(await loadProfiles());
+        await refreshProfileList();
+        showSaveStatus('已切换配置', 'success');
       }
     });
   });
 }
 
-function editProfile(id) {
-  loadProfiles().then(({ profiles }) => {
+function openEditor(id) {
+  getProfiles().then(({ profiles }) => {
     const p = profiles.find((pr) => pr.id === id);
     if (!p) return;
     editingProfileId = id;
@@ -68,7 +68,7 @@ function editProfile(id) {
     document.getElementById('profileBaseUrl').value = p.baseUrl;
     document.getElementById('profileApiKey').value = p.apiKey;
     setModelValue(p.model);
-    document.getElementById('deleteProfileBtn').style.display = profiles.length > 1 ? 'inline-block' : 'none';
+    document.getElementById('deleteProfileBtn').style.display = 'inline-block';
   });
 }
 
@@ -84,7 +84,7 @@ async function saveProfile() {
   if (!baseUrl) { showSaveStatus('请输入 API Base URL', 'error'); return; }
   if (!model) { showSaveStatus('请输入模型名称', 'error'); return; }
 
-  const { profiles, activeProfileId } = await loadProfiles();
+  const { profiles, activeProfileId } = await getProfiles();
   const idx = profiles.findIndex((p) => p.id === id);
   const profile = { id, name, baseUrl, apiKey, model };
 
@@ -97,23 +97,23 @@ async function saveProfile() {
   const newActive = activeProfileId || id;
   await saveProfiles(profiles, newActive);
   showSaveStatus('配置已保存', 'success');
-  cancelEdit();
-  renderProfileList(profiles, newActive);
+  closeEditor();
+  await refreshProfileList();
 }
 
 async function deleteProfile() {
   const id = document.getElementById('profileId').value;
-  const { profiles, activeProfileId } = await loadProfiles();
+  const { profiles, activeProfileId } = await getProfiles();
   if (profiles.length <= 1) { showSaveStatus('至少保留一个配置', 'error'); return; }
   const filtered = profiles.filter((p) => p.id !== id);
   const newActive = id === activeProfileId ? filtered[0].id : activeProfileId;
   await saveProfiles(filtered, newActive);
   showSaveStatus('配置已删除', 'success');
-  cancelEdit();
-  renderProfileList(filtered, newActive);
+  closeEditor();
+  await refreshProfileList();
 }
 
-function cancelEdit() {
+function closeEditor() {
   editingProfileId = null;
   document.getElementById('profileEditor').style.display = 'none';
 }
@@ -125,6 +125,8 @@ function escHtml(str) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  await migrateOnce();
+
   const settings = await chrome.storage.sync.get({
     sourceLang: 'auto',
     targetLang: '中文',
@@ -143,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('autoTranslate').checked = settings.autoTranslate;
   document.getElementById('autoTranslateWithoutConfirm').checked = settings.autoTranslateWithoutConfirm;
 
-  await renderProfileList(await loadProfiles());
+  await refreshProfileList();
 });
 
 document.getElementById('addProfileBtn').addEventListener('click', () => {
@@ -159,7 +161,7 @@ document.getElementById('addProfileBtn').addEventListener('click', () => {
 });
 
 document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
-document.getElementById('cancelProfileBtn').addEventListener('click', cancelEdit);
+document.getElementById('cancelProfileBtn').addEventListener('click', closeEditor);
 document.getElementById('deleteProfileBtn').addEventListener('click', deleteProfile);
 
 modelSelect().addEventListener('change', () => {
