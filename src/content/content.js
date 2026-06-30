@@ -135,16 +135,8 @@ function getVisibleTextNodes(root) {
     'SCRIPT', 'STYLE', 'NOSCRIPT',
   ]);
 
-  const iconClassPattern = /\b(fa[sbdlr]?|icon|material-icons|glyphicon|symbol|svg-|icon-|k-icon|d-icon|c-icon)\b/i;
-
-  function isExcluded(node) {
-    let el = node.parentElement;
-    while (el && el !== root) {
-      if (excludedTags.has(el.tagName)) return true;
-      el = el.parentElement;
-    }
-    return false;
-  }
+  const iconClassPattern = /\b(fa[sbdlr]?|icon|material-icons|glyphicon|symbol|svg-|icon-|k-icon|d-icon|c-icon|mdi|oi|bi|si|ti|pi)\b/i;
+  const iconFontFamilies = ['Font Awesome', 'Material Icons', 'MaterialDesignIcons', 'Ionicons', 'Glyphicons', 'Octicons', 'Feather', 'Boxicons', 'Tabler Icons', 'PrimeIcons', 'Devicons', 'Typicons', 'Weather Icons', 'Line Awesome', 'Fontello'];
 
   function isIconText(text, el) {
     const chars = Array.from(text.trim());
@@ -152,17 +144,32 @@ function getVisibleTextNodes(root) {
 
     if (el && iconClassPattern.test(el.className)) return true;
 
+    const style = el && window.getComputedStyle(el);
+    if (style) {
+      const font = style.fontFamily;
+      for (const name of iconFontFamilies) {
+        if (font.includes(name)) return true;
+      }
+    }
+
+    if (el && (el.getAttribute('role') === 'img' || el.hasAttribute('aria-label'))) return true;
+
     const hasWordChars = chars.some((c) => /[\w\u4e00-\u9fff\u3400-\u4dbf\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af]/.test(c));
     if (!hasWordChars) return true;
 
-    if (chars.length <= 2) {
-      const allPua = chars.every((c) => {
-        const code = c.codePointAt(0);
-        return (code >= 0xE000 && code <= 0xF8FF) || (code >= 0xF0000 && code <= 0xFFFFF);
-      });
-      if (allPua) return true;
-    }
+    const firstCode = chars[0].codePointAt(0);
+    if (chars.length <= 3 && firstCode >= 0xE000 && firstCode <= 0xF8FF) return true;
 
+    return false;
+  }
+
+  function isExcluded(node) {
+    let el = node.parentElement;
+    while (el && el !== root) {
+      if (excludedTags.has(el.tagName)) return true;
+      if (el.getAttribute && (el.getAttribute('role') === 'img' || el.hasAttribute('aria-label'))) return true;
+      el = el.parentElement;
+    }
     return false;
   }
 
