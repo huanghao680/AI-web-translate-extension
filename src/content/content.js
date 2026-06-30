@@ -215,6 +215,61 @@ function getPageSegments() {
   return segments;
 }
 
+function getBlockRoot(node) {
+  const blocks = new Set(['P','DIV','H1','H2','H3','H4','H5','H6','LI','TD','TH','BLOCKQUOTE','SECTION','ARTICLE','HEADER','FOOTER','MAIN','ASIDE','NAV','OL','UL','DL','FIGCAPTION','PRE','FORM','FIELDSET','DETAILS','DIALOG','BUTTON']);
+  let el = node.parentElement;
+  while (el && el !== document.body) {
+    if (blocks.has(el.tagName)) return el;
+    el = el.parentElement;
+  }
+  return document.body;
+}
+
+function getSmartSegments() {
+  const textNodes = getVisibleTextNodes(document.body);
+  const segments = [];
+  const inlineCodeTags = new Set(['CODE', 'KBD', 'SAMP', 'VAR']);
+  let i = 0;
+  while (i < textNodes.length) {
+    const nodes = [textNodes[i]];
+    const root = getBlockRoot(textNodes[i]);
+    let j = i + 1;
+    while (j < textNodes.length && getBlockRoot(textNodes[j]) === root) {
+      const prev = textNodes[j - 1];
+      const curr = textNodes[j];
+      const hasGap = prev.parentNode !== curr.parentNode || curr.compareDocumentPosition(prev.parentNode) & Node.DOCUMENT_POSITION_FOLLOWING === 0;
+      nodes.push(curr);
+      j++;
+    }
+    const parts = [];
+    for (let k = 0; k < nodes.length; k++) {
+      const text = nodes[k].textContent.trim();
+      if (text) parts.push(text);
+      if (k < nodes.length - 1) {
+        const sibling = nodes[k].nextSibling;
+        const nextSib = nodes[k + 1].previousSibling;
+        let gapNode = nodes[k].nextSibling;
+        let foundGap = false;
+        while (gapNode && gapNode !== nodes[k + 1]) {
+          if (gapNode.nodeType === 1 && inlineCodeTags.has(gapNode.tagName)) {
+            const code = gapNode.textContent.trim();
+            if (code) { parts.push('[' + code + ']'); foundGap = true; break; }
+          }
+          gapNode = gapNode.nextSibling;
+        }
+        if (foundGap) continue;
+        if (text && nodes[k + 1].textContent.trim() && nodes[k].parentNode !== nodes[k + 1].parentNode) {
+          parts.push(' ');
+        }
+      }
+    }
+    const text = parts.join('').replace(/\s+/g, ' ');
+    if (text) segments.push({ nodes, text });
+    i = j;
+  }
+  return segments;
+}
+
 function applyTranslationToSegment(segment, translatedText) {
   const { nodes } = segment;
   if (nodes.length === 1) {
@@ -302,7 +357,7 @@ async function translateFullPage() {
         progressBar.show(__('notifTranslatingContent'));
       }
     }
-    if (!segments) segments = getPageSegments();
+    if (!segments) segments = settings.enableSmartGrouping ? getSmartSegments() : getPageSegments();
     const total = segments.length;
     const batchSize = 15;
     const totalBatches = Math.ceil(total / batchSize);
@@ -334,8 +389,12 @@ async function translateFullPage() {
       const results = translatedBatch.split('\n---SEPARATOR---\n');
 
       for (let i = 0; i < batch.length; i++) {
-        const translated = results[i]?.trim();
+        let translated = results[i]?.trim();
         if (translated && translated !== batch[i].text) {
+          if (settings.enableSmartGrouping) {
+            translated = translated.replace(/\[[^\]]*\]/g, '').replace(/\s+/g, ' ').trim();
+            if (!translated) translated = batch[i].nodes[0]?.textContent?.trim() || '';
+          }
           applyTranslationToSegment(batch[i], translated);
         }
       }
